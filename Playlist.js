@@ -150,10 +150,10 @@ var Playlist = function (data) {
                 //                for (x = 0; x < currently_playing.length; x++) {
                 //                    currently_playing[x] = false;
                 //                }
-                //                console.log(temp);
+                //                //console.log(temp);
                 //                currently_playing[SongList.indexOf(temp)] = true;
                 currentSong = SongList.indexOf(temp);
-                console.log(currentSong);
+                //console.log(currentSong);
             } else {
                 var t;
 
@@ -193,8 +193,8 @@ var Playlist = function (data) {
             }
         }
 
-        console.log(SongList);
-        console.log(currently_playing);
+        //console.log(SongList);
+        //console.log(currently_playing);
 
     }
 
@@ -213,7 +213,7 @@ var Playlist = function (data) {
                 if (shuffle) {
                     shuffleArray(SongList);
                 }
-                console.log(SongList);
+                //console.log(SongList);
 
                 content = "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>";
                 for (i = 0; i < links.length; i++) {
@@ -266,14 +266,14 @@ var Playlist = function (data) {
                         var min = (ms / 1000 / 60) << 0,
                             sec = (ms / 1000) % 60;
                         //console.log(min + " :: " + sec);
-                        //                        console.log((this.id.match(/\d/g).toString().replace(/,/g, "")));
+                        //                        //console.log((this.id.match(/\d/g).toString().replace(/,/g, "")));
 
                         document.getElementById('tracktime-' + (this.id.match(/\d/g).toString().replace(/,/g, ""))).innerHTML = (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec)));
 
                     }, false);
 
                     tk.addEventListener('ended', function () {
-                        console.log('Song has ended');
+                        //console.log('Song has ended');
                         playNext();
                         //var play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
                         //play_pause.className = "player fa fa-play";
@@ -420,19 +420,19 @@ var Playlist = function (data) {
 //    if (data.hasOwnProperty('folder')) {
 //        var extension = ".mp3";
 //        if (data.hasOwnProperty('filetype')) {
-//            console.log("Filetype found");
+//            //console.log("Filetype found");
 //            extension = data.filetype;
 //        }
 //
-//        console.log(extension);
+//        //console.log(extension);
 //
-//        console.log("Folder Found");
+//        //console.log("Folder Found");
 //
 //        //replace this with non-jquery later. . .
 //        $.ajax({
 //            url: data.folder,
 //            success: function (stuff) {
-//                console.log("Success");
+//                //console.log("Success");
 //                var content = "<ul>";
 //
 //                if (extension == '.*') {
@@ -440,7 +440,7 @@ var Playlist = function (data) {
 //$(stuff).find("a:contains(" + value + ")").each(function () {
 //    // will loop through 
 //    var ix = $(this).attr("href");
-//    console.log(ix);
+//    //console.log(ix);
 //    content += "<li>" + ix.replace(/%20/g, " ") + "</li>";
 //});
 //                    });
@@ -456,11 +456,11 @@ var Playlist = function (data) {
 //                document.getElementById("playlist").innerHTML = content;
 //            },
 //            error: function (xlh) {
-//                console.log("ERROR: " + xlh);
+//                //console.log("ERROR: " + xlh);
 //            }
 //        });
 //
 //    } else {
 //        //shit don't exist, fam
-//        console.log("shit don't exist, fam");
+//        //console.log("shit don't exist, fam");
 //    }
