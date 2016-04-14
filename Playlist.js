@@ -12,6 +12,7 @@ var Playlist = function (data) {
         autoplay = (data.hasOwnProperty('autoplay')) ? data.autoplay : false,
         links = (data.hasOwnProperty('links')) ? data.links : false,
         showAll = (data.hasOwnProperty('showAll')) ? data.showAll : false,
+        displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         debug = (data.hasOwnProperty('debug')) ? data.debug : false;
     //console.log(loop);
 
@@ -36,7 +37,7 @@ var Playlist = function (data) {
         currentSong++;
         currentSong = currentSong % SongList.length;
         currently_playing[SongList[currentSong]] = true;
-        
+
         var tracks = document.getElementsByClassName('song');
         var x;
         for (x = 0; x < tracks.length; x++) {
@@ -59,6 +60,75 @@ var Playlist = function (data) {
 
     var playPrevious = function () {
         //check to see if the time that has passed from the start is less than 2 seconds, and either restart or go to the previous member of the array
+        if (currently_playing.indexOf(true) >= 0) {
+            var track = document.getElementById('track-' + currently_playing.indexOf(true)),
+                play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
+            if ((track.currentTime % 60) > 1) {
+                track.currentTime = 0;
+            } else {
+                var wasPaused = track.paused;
+                track.pause();
+                track.currentTime = 0;
+                play_pause.className = "player fa fa-play";
+                currently_playing[SongList[currentSong]] = false;
+                currentSong += SongList.length - 1;
+                currentSong = currentSong % SongList.length;
+                currently_playing[SongList[currentSong]] = true;
+
+                var tracks = document.getElementsByClassName('song');
+                var x;
+                for (x = 0; x < tracks.length; x++) {
+                    var xtrack = tracks[x];
+                    if (!showAll) {
+                        if (currently_playing[x]) {
+                            xtrack.className = 'song';
+                        } else {
+                            xtrack.className = 'song hidden';
+                        }
+                    }
+                }
+
+                var next = document.getElementById('track-' + SongList[currentSong]);
+                if (!wasPaused) {
+                    next.play();
+                    document.getElementById('play-pause-button-' + SongList[currentSong]).className = "player fa fa-pause";
+                }
+            }
+        } else {
+            var track = document.getElementById('track-' + SongList[currentSong]),
+                play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
+            if ((track.currentTime % 60) > 1) {
+                track.currentTime = 0;
+            } else {
+                var wasPaused = track.paused;
+                track.pause();
+                track.currentTime = 0;
+                play_pause.className = "player fa fa-play";
+                currently_playing[SongList[currentSong]] = false;
+                currentSong += SongList.length - 1;
+                currentSong = currentSong % SongList.length;
+                currently_playing[SongList[currentSong]] = true;
+
+                var tracks = document.getElementsByClassName('song');
+                var x;
+                for (x = 0; x < tracks.length; x++) {
+                    var xtrack = tracks[x];
+                    if (!showAll) {
+                        if (currently_playing[x]) {
+                            xtrack.className = 'song';
+                        } else {
+                            xtrack.className = 'song hidden';
+                        }
+                    }
+                }
+
+                var next = document.getElementById('track-' + SongList[currentSong]);
+                if (!wasPaused) {
+                    next.play()
+                    document.getElementById('play-pause-button-' + SongList[currentSong]).className = "player fa fa-pause";
+                }
+            }
+        }
     }
 
     var shuffleToggle = function (sh) {
@@ -157,7 +227,7 @@ var Playlist = function (data) {
                     content += '<i style="cursor: pointer" id="fwd-button-' + i + '" class="fa fa-forward player"></i>';
                     content += '<i style="cursor: pointer" id="ffwd-button-' + i + '" class="fa fa-fast-forward player"></i>';
                     content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player"></i>';
-                    content += '<p>'+links[i]+'</p>';
+                    content += (displayName) ? '<p>' + links[i] + '</p>' : '';
                     content += "</div>";
                     content += "<audio " + ((debug) ? "controls" : "") + " " + loop + " class = 'track' id = 'track-" + i + "' > ";
                     content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio>";
@@ -177,6 +247,9 @@ var Playlist = function (data) {
                 for (c = 0; c < document.getElementsByClassName('fa-random').length; c++) {
                     document.getElementsByClassName('fa-random')[c].onclick = function () {
                         shuffleToggle();
+                    }
+                    document.getElementsByClassName('fa-fast-backward')[c].onclick = function () {
+                        playPrevious();
                     }
                 }
 
@@ -230,10 +303,13 @@ var Playlist = function (data) {
                     window.onkeyup = function (e) {
                         var key = e.keyCode ? e.keyCode : e.which;
                         var locker;
-                        if (key == 32) {
-                            if (!locker) {
-                                locker = true;
-                                //console.log('Space was pressed');
+
+                        if (!locker) {
+                            locker = true;
+                            //console.log('Space was pressed');
+                            switch (key) {
+                            case 13:
+                            case 32:
                                 var c;
                                 if (currently_playing.indexOf(true) == -1) {
                                     var track = document.getElementById('track-' + SongList[currentSong]),
@@ -262,8 +338,26 @@ var Playlist = function (data) {
                                 setTimeout(function () {
                                     locker = false
                                 }, 200);
+                                break;
+                            case 39:
+                                var track = document.getElementById('track-' + SongList[currentSong]),
+                                    play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
+                                if (!track.paused) {
+                                    play_pause.className = "player fa fa-play";
+                                }
+                                playNext();
+                                break;
+                            case 37:
+                                //left arrow
+                                playPrevious();
+                                break;
+                            case 83:
+                                //'s'
+                                shuffleToggle();
+                                break;
                             }
                         }
+
                     }
                 }
 
