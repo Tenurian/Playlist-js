@@ -302,21 +302,21 @@ var Playlist = function (data) {
                             content += "<div class='media " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='media-" + i + "'>";
                             content += "<div class='media-container'><" + mediaType + " " + ((mediaType == 'video') ? "width='" + videoWidth + "' height='" + videoHeight + "' " : '') + " " + ((debug) ? "controls" : "") + " " + ((loop) ? 'loop' : '') + " class = 'track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' id = 'track-" + i + "' > ";
 
-                            content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element</" + mediaType + "></div><br>";
+                            content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element</" + mediaType + '></div><br>";
                             content += "<div class='trackpercent' id='trackpercent-" + i + "'><div class='fillpercent' id='fillpercent-" + i + "'></div></div><br>";
                             /*Make this into a canvas later?*/
                             content += "<div clear='both'><span id='controls-" + i + "' class='controls left " + ((alwaysShowControls) ? '' : ((i == SongList[currentSong]) ? "" : "hidden")) + "'>"
-                            content += '<i style="cursor: pointer" id="fback-button-' + i + '" class="fa fa-fast-backward player"></i>';
-                            content += '<i style="cursor: pointer" id="back-button-' + i + '" class="fa fa-backward player"></i>';
+                            content += "<i style='cursor: pointer' id='fback-button-" + i + "' class='fa fa-fast-backward player'></i>";
+                            content += "<i style='cursor: pointer' id='back-button-" + i + "' class='fa fa-backward player'></i>";
                             content += "<span class='play-pause' id='play-pause-" + i + "'>";
-                            content += '<i style="cursor: pointer" id="play-pause-button-' + i + '" class="fa fa-play player"></i>';
+                            content += "<i style='cursor: pointer' id='play-pause-button-"+ i +"' class='fa fa-play player'></i>";
                             content += "</span>";
-                            content += '<i style="cursor: pointer" id="fwd-button-' + i + '" class="fa fa-forward player"></i>';
-                            content += '<i style="cursor: pointer" id="ffwd-button-' + i + '" class="fa fa-fast-forward player"></i>';
-                            content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player ' + ((shuffle) ? '' : 'highlight') + '"></i>';
-                            content += '<i style="cursor: pointer" id="loop-button-' + i + '" class="fa fa-retweet player ' + ((loop) ? '' : 'highlight') + '"></i>';
+                            content += "<i style='cursor: pointer' id='fwd-button-"+ i +"' class='fa fa-forward player'></i>";
+                            content += "<i style='cursor: pointer' id='ffwd-button-"+ i +"' class='fa fa-fast-forward player'></i>";
+                            content += "<i style='cursor: pointer' id='shuffle-button-"+ i +"' class='fa fa-random player ' + ((shuffle) ? '' : 'highlight') + ''></i>";
+                            content += "<i style='cursor: pointer' id='loop-button-"+ i +"' class='fa fa-retweet player ' + ((loop) ? '' : 'highlight') + ''></i>";
                             content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span></div>";
-                            content += (displayName) ? '<div><p>' + links[i].split('/')[links[i].split('/').length - 1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + '</p></div>' : '';
+                            content += (displayName) ? "<div><p>' + links[i].split('/')[links[i].split('/').length - 1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + "</p></div>' : '";
                             content += "</div>";
 
                             /*******************Debugging stuffs*********************/
