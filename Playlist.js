@@ -8,7 +8,7 @@ var Playlist = function (data) {
     var SongList = [],
         currentSong = -1,
         shuffle = (data.hasOwnProperty('shuffle')) ? data.shuffle : false,
-        loop = ((data.hasOwnProperty('loop')) ? data.loop : false) ? 'loop' : '',
+        loop = (data.hasOwnProperty('loop')) ? data.loop : false,
         autoplay = (data.hasOwnProperty('autoplay')) ? data.autoplay : false,
         links = (data.hasOwnProperty('links')) ? data.links : false,
         showAll = (data.hasOwnProperty('showAll')) ? data.showAll : true,
@@ -141,14 +141,13 @@ var Playlist = function (data) {
     }
 
     var shuffleToggle = function (sh) {
-
         var c;
-        if (sh) {
+        if (sh != null) {
             for (c = 0; c < document.getElementsByClassName('fa-random').length; c++) {
                 if (sh) {
-                    document.getElementsByClassName('fa-random')[c].className = "fa fa-random player highlight";
-                } else {
                     document.getElementsByClassName('fa-random')[c].className = "fa fa-random player";
+                } else {
+                    document.getElementsByClassName('fa-random')[c].className = "fa fa-random player highlight";
                 }
             }
         } else {
@@ -156,18 +155,15 @@ var Playlist = function (data) {
             if (shuffle) {
                 shuffleArray(SongList);
                 var x, temp = currently_playing.indexOf(true);
-                //                for (x = 0; x < currently_playing.length; x++) {
-                //                    currently_playing[x] = false;
-                //                }
-                //                //console.log(temp);
-                //                currently_playing[SongList.indexOf(temp)] = true;
+                if(temp == -1){
+                    temp = 0;
+                    currently_playing[0] = true;
+                }
+                
                 currentSong = SongList.indexOf(temp);
-                //console.log(currentSong);
             } else {
                 var t;
-
                 currentSong = SongList[currentSong];
-
                 for (t = 0; t < SongList.length; t++) {
                     SongList[t] = t;
                     if (t == currentSong) {
@@ -195,15 +191,12 @@ var Playlist = function (data) {
             var next = document.getElementById('track-' + SongList[currentSong]);
             for (c = 0; c < document.getElementsByClassName('fa-random').length; c++) {
                 if (shuffle) {
-                    document.getElementsByClassName('fa-random')[c].className = "fa fa-random player highlight";
-                } else {
                     document.getElementsByClassName('fa-random')[c].className = "fa fa-random player";
+                } else {
+                    document.getElementsByClassName('fa-random')[c].className = "fa fa-random player highlight";
                 }
             }
         }
-
-        //console.log(SongList);
-        //console.log(currently_playing);
 
     }
 
@@ -222,10 +215,10 @@ var Playlist = function (data) {
                 if (shuffle) {
                     shuffleArray(SongList);
                 }
-                //console.log(SongList);
                 var cockroach = "";
                 content = "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>";
                 for (i = 0; i < links.length; i++) {
+                    console.log("i:" + i + " - currentSong: " + currentSong + " - SongList[currentSong]:" + SongList[currentSong]);
                     currently_playing[i] = false;
                     content += "<div class='song " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='song-" + i + "'>";
                     content += "<div class='trackpercent' id='trackpercent-" + i + "'><div class='fillpercent' id='fillpercent-" + i + "'></div></div><br>";
@@ -238,22 +231,21 @@ var Playlist = function (data) {
                     content += "</span>";
                     content += '<i style="cursor: pointer" id="fwd-button-' + i + '" class="fa fa-forward player"></i>';
                     content += '<i style="cursor: pointer" id="ffwd-button-' + i + '" class="fa fa-fast-forward player"></i>';
-                    content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player"></i>';
+                    content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player ' + ((shuffle) ? 'highlight' : '') + '"></i>';
+                    content += '<i style="cursor: pointer" id="loop-button-' + i + '" class="fa fa-retweet player ' + ((loop) ? 'highlight' : '') + '"></i>';
                     content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span></div>";
                     content += (displayName) ? '<div><p>' + links[i] + '</p></div>' : '';
                     content += "</div>"
-                    cockroach += "<audio " + ((debug) ? "controls" : "") + " " + loop + " class = 'track' id = 'track-" + i + "' > ";
+                    cockroach += "<audio " + ((debug) ? "controls" : "") + " " + ((loop)?'loop':'') + " class = 'track' id = 'track-" + i + "' > ";
                     cockroach += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio><br>";
 
                 }
                 content += "<style>"
-                content += "i{float:left}.song{background-color:"+songBarBackground+"; color:"+songBarColor+"; border-radius:"+songBarRadius+"}.hidden{visibility: collapse; display:none}.left{float:left}.right{float:right}.song{width:" + ((data.hasOwnProperty('width')) ? data.width : "500px") + "}.player{padding-left:5px;padding-right:5px}.highlight{color:"+songBarHighlight+"}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}"
+                content += "i{float:left}.song{background-color:" + songBarBackground + "; color:" + songBarColor + "; border-radius:" + songBarRadius + "}.hidden{visibility: collapse; display:none}.left{float:left}.right{float:right}.song{width:" + ((data.hasOwnProperty('width')) ? data.width : "500px") + "}.player{padding-left:5px;padding-right:5px}.highlight{color:" + songBarHighlight + "}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}"
                 content += "</style>";
                 PlaylistElement.innerHTML = content + "<br>" + cockroach;
 
                 var tracks = document.getElementsByClassName('track');
-                //console.log("Tracks length: " + tracks.length);
-
                 shuffleToggle(shuffle);
 
                 var c;
@@ -262,10 +254,13 @@ var Playlist = function (data) {
                     document.getElementsByClassName('fa-random')[c].onclick = function () {
                         shuffleToggle();
                     }
+                    document.getElementsByClassName('fa-retweet')[c].onclick = function () {
+                        loopToggle();
+                    }
                     document.getElementsByClassName('fa-fast-backward')[c].onclick = function () {
                         playPrevious();
                     }
-                    
+
                     var tk = document.getElementById('track-' + c);
 
                     //console.log(tk.id);
@@ -281,7 +276,7 @@ var Playlist = function (data) {
                         document.getElementById('tracktime-' + TID).innerHTML = (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec)));
                         //console.log(Math.floor(100 * (document.getElementById("track-" + TID)).currentTime / (document.getElementById("track-" + TID)).duration));
                         var per = Math.ceil(100 * (document.getElementById("track-" + TID)).currentTime / (document.getElementById("track-" + TID)).duration);
-                        document.getElementsByClassName('fillpercent')[TID].style.width = ( ((per <= 100)? per : 100) + "%");
+                        document.getElementsByClassName('fillpercent')[TID].style.width = (((per <= 100) ? per : 100) + "%");
                         document.getElementsByClassName('fillpercent')[TID].style.height = "100%";
                         document.getElementsByClassName('fillpercent')[TID].style.backgroundColor = progressBarColor;
 
@@ -307,7 +302,6 @@ var Playlist = function (data) {
                                     var track = document.getElementById('track-' + SongList[currentSong]),
                                         play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
                                     currently_playing[SongList[currentSong]] = true;
-                                    //console.log("playing");
                                     track.play();
                                     play_pause.className = "player fa fa-pause";
                                 } else {
