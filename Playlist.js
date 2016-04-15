@@ -22,9 +22,9 @@ var Playlist = function (data) {
         songBarColor = (data.hasOwnProperty('songBarColor')) ? data.songBarColor : "#FFF",
         songBarHighlight = (data.hasOwnProperty('songBarHighlight')) ? data.songBarColor : "#aaa",
         songBarRadius = (data.hasOwnProperty('songBarRadius')) ? data.songBarRadius : "5px",
-        debug = (data.hasOwnProperty('debug')) ? data.debug : false;
+        skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000;
+    debug = (data.hasOwnProperty('debug')) ? data.debug : false;
     //console.log(loop);
-
     function shuffleArray(a) {
         var j, x, i;
         for (i = a.length; i; i -= 1) {
@@ -33,6 +33,14 @@ var Playlist = function (data) {
             a[i - 1] = a[j];
             a[j] = x;
         }
+    }
+
+    var skipForward = function () {
+        if (currently_playing.indexOf(true) == -1) {
+            currently_playing[0] = true;
+        }
+        var track = document.getElementById('track-' + currently_playing.indexOf(true));
+        track.currentTime += (skipAmount / 1000);
     }
 
     var playNext = function () {
@@ -140,6 +148,27 @@ var Playlist = function (data) {
         }
     }
 
+    var skipBackward = function () {
+        if (currently_playing.indexOf(true) == -1) {
+            currently_playing[0] = true;
+        }
+        var track = document.getElementById('track-' + currently_playing.indexOf(true));
+        track.currentTime -= (skipAmount / 1000);
+    }
+
+    var loopToggle = function () {
+        if (currently_playing.indexOf(true) == -1) {
+            currently_playing[0] = true;
+        } //prevent a massive error
+        loop = !loop;
+        var c;
+        for (c = 0; c < document.getElementsByClassName('fa-retweet').length; c++) {
+            document.getElementsByClassName('fa-retweet')[c].className = (loop) ? 'fa fa-retweet player' : 'fa fa-retweet player highlight';
+        }
+        //        document.getElementById('loop-button-' + (currently_playing.indexOf(true))).className = (loop) ? 'fa fa-retweet player' : 'fa fa-retweet player highlight';
+
+    }
+
     var shuffleToggle = function (sh) {
         var c;
         if (sh != null) {
@@ -155,11 +184,11 @@ var Playlist = function (data) {
             if (shuffle) {
                 shuffleArray(SongList);
                 var x, temp = currently_playing.indexOf(true);
-                if(temp == -1){
+                if (temp == -1) {
                     temp = 0;
                     currently_playing[0] = true;
                 }
-                
+
                 currentSong = SongList.indexOf(temp);
             } else {
                 var t;
@@ -218,7 +247,7 @@ var Playlist = function (data) {
                 var cockroach = "";
                 content = "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>";
                 for (i = 0; i < links.length; i++) {
-                    console.log("i:" + i + " - currentSong: " + currentSong + " - SongList[currentSong]:" + SongList[currentSong]);
+                    //console.log("i:" + i + " - currentSong: " + currentSong + " - SongList[currentSong]:" + SongList[currentSong]);
                     currently_playing[i] = false;
                     content += "<div class='song " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='song-" + i + "'>";
                     content += "<div class='trackpercent' id='trackpercent-" + i + "'><div class='fillpercent' id='fillpercent-" + i + "'></div></div><br>";
@@ -231,12 +260,12 @@ var Playlist = function (data) {
                     content += "</span>";
                     content += '<i style="cursor: pointer" id="fwd-button-' + i + '" class="fa fa-forward player"></i>';
                     content += '<i style="cursor: pointer" id="ffwd-button-' + i + '" class="fa fa-fast-forward player"></i>';
-                    content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player ' + ((shuffle) ? 'highlight' : '') + '"></i>';
-                    content += '<i style="cursor: pointer" id="loop-button-' + i + '" class="fa fa-retweet player ' + ((loop) ? 'highlight' : '') + '"></i>';
+                    content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player ' + ((shuffle) ? '' : 'highlight') + '"></i>';
+                    content += '<i style="cursor: pointer" id="loop-button-' + i + '" class="fa fa-retweet player ' + ((loop) ? '' : 'highlight') + '"></i>';
                     content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span></div>";
                     content += (displayName) ? '<div><p>' + links[i] + '</p></div>' : '';
                     content += "</div>"
-                    cockroach += "<audio " + ((debug) ? "controls" : "") + " " + ((loop)?'loop':'') + " class = 'track' id = 'track-" + i + "' > ";
+                    cockroach += "<audio " + ((debug) ? "controls" : "") + " " + ((loop) ? 'loop' : '') + " class = 'track' id = 'track-" + i + "' > ";
                     cockroach += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio><br>";
 
                 }
@@ -251,6 +280,40 @@ var Playlist = function (data) {
                 var c;
 
                 for (c = 0; c < document.getElementsByClassName('fa-random').length; c++) {
+                    document.getElementsByClassName('play-pause')[c].onclick = function () {
+                        //console.log(this.id);
+                        var patt = /play\-pause\-[0-9]+/g;
+                        if (this.id.match(patt)) {
+                            var song_number = /[0-9]+/g.exec(this.id)[0];
+                            currentSong = SongList.indexOf(Math.floor(song_number));
+                            //console.log(song_number);
+                            //console.log(currently_playing.length);
+                            var a;
+                            for (a = 0; a < currently_playing.length; a++) {
+                                if (a != song_number) {
+                                    currently_playing[a] = false;
+                                }
+                            }
+                            currently_playing[song_number] = !currently_playing[song_number];
+                            for (a = 0; a < currently_playing.length; a++) {
+                                var track = document.getElementById("track-" + a),
+                                    play_pause = document.getElementById("play-pause-button-" + a);
+                                if (currently_playing[a]) {
+                                    play_pause.className = "player fa fa-pause";
+                                    track.play();
+                                } else {
+                                    play_pause.className = "player fa fa-play";
+                                    track.pause();
+                                }
+                            }
+                        }
+                    }
+                    document.getElementsByClassName('fa-forward')[c].onclick = function () {
+                        skipForward();
+                    }
+                    document.getElementsByClassName('fa-backward')[c].onclick = function () {
+                        skipBackward();
+                    }
                     document.getElementsByClassName('fa-random')[c].onclick = function () {
                         shuffleToggle();
                     }
@@ -259,6 +322,14 @@ var Playlist = function (data) {
                     }
                     document.getElementsByClassName('fa-fast-backward')[c].onclick = function () {
                         playPrevious();
+                    }
+                    document.getElementsByClassName('fa-fast-forward')[c].onclick = function () {
+                        var track = document.getElementById('track-' + SongList[currentSong]),
+                            play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
+                        if (!track.paused) {
+                            play_pause.className = "player fa fa-play";
+                        }
+                        playNext();
                     }
 
                     var tk = document.getElementById('track-' + c);
@@ -284,8 +355,20 @@ var Playlist = function (data) {
                     }, false);
 
                     tk.addEventListener('ended', function () {
-                        playNext();
+                        if (loop) {
+                            document.getElementById('track-' + currently_playing.indexOf(true)).currentTime = 0;
+                            document.getElementById('track-' + currently_playing.indexOf(true)).play();
+                        } else {
+                            playNext();
+                        }
                     })
+
+                    window.onkeydown = function (e) { //prevent screen from scrolling when pressing the spacebar
+                        if (e.keyCode == 32 && e.target == document.body) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    };
 
                     window.onkeyup = function (e) {
                         var key = e.keyCode ? e.keyCode : e.which;
@@ -321,9 +404,8 @@ var Playlist = function (data) {
                                         }
                                     }
                                 }
-                                setTimeout(function () {
-                                    locker = false
-                                }, 200);
+                                e.preventDefault();
+                                return false;
                                 break;
                             case 39:
                                 var track = document.getElementById('track-' + SongList[currentSong]),
@@ -341,56 +423,18 @@ var Playlist = function (data) {
                                 //'s'
                                 shuffleToggle();
                                 break;
+                            case 82:
+                            case 76:
+                                loopToggle();
+                                break;
                             }
+                            setTimeout(function () {
+                                locker = false
+                            }, 200);
                         }
 
                     }
-                }
 
-                /********************setting the play/pause buttons to have functionality**********************/
-
-                for (i = 0; i < document.getElementsByClassName('play-pause').length; i++) {
-                    var x = document.getElementsByClassName('play-pause')[i],
-                        ffwd = document.getElementsByClassName('fa-fast-forward')[i],
-                        fwd = document.getElementsByClassName('fa-forward')[i],
-                        back = document.getElementsByClassName('fa-backward')[i],
-                        fback = document.getElementsByClassName('fa-fast-backward')[i];
-                    x.onclick = function () {
-                        //console.log(this.id);
-                        var patt = /play\-pause\-[0-9]+/g;
-                        if (this.id.match(patt)) {
-                            var song_number = /[0-9]+/g.exec(this.id)[0];
-                            currentSong = SongList.indexOf(Math.floor(song_number));
-                            //console.log(song_number);
-                            //console.log(currently_playing.length);
-                            var a;
-                            for (a = 0; a < currently_playing.length; a++) {
-                                if (a != song_number) {
-                                    currently_playing[a] = false;
-                                }
-                            }
-                            currently_playing[song_number] = !currently_playing[song_number];
-                            for (a = 0; a < currently_playing.length; a++) {
-                                var track = document.getElementById("track-" + a),
-                                    play_pause = document.getElementById("play-pause-button-" + a);
-                                if (currently_playing[a]) {
-                                    play_pause.className = "player fa fa-pause";
-                                    track.play();
-                                } else {
-                                    play_pause.className = "player fa fa-play";
-                                    track.pause();
-                                }
-                            }
-                        }
-                    }
-                    ffwd.onclick = function () {
-                        var track = document.getElementById('track-' + SongList[currentSong]),
-                            play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
-                        if (!track.paused) {
-                            play_pause.className = "player fa fa-play";
-                        }
-                        playNext();
-                    }
                 }
             }
         } else {
