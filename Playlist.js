@@ -11,8 +11,17 @@ var Playlist = function (data) {
         loop = ((data.hasOwnProperty('loop')) ? data.loop : false) ? 'loop' : '',
         autoplay = (data.hasOwnProperty('autoplay')) ? data.autoplay : false,
         links = (data.hasOwnProperty('links')) ? data.links : false,
-        showAll = (data.hasOwnProperty('showAll')) ? data.showAll : false,
+        showAll = (data.hasOwnProperty('showAll')) ? data.showAll : true,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
+        progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
+        progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
+        progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid #3f79e0",
+        progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
+        progressBarRadius = (data.hasOwnProperty('progressBarRadius')) ? data.progressBarRadius : "2px",
+        songBarBackground = (data.hasOwnProperty('songBarBackground')) ? data.songBarBackground : "#000",
+        songBarColor = (data.hasOwnProperty('songBarColor')) ? data.songBarColor : "#FFF",
+        songBarHighlight = (data.hasOwnProperty('songBarHighlight')) ? data.songBarColor : "#aaa",
+        songBarRadius = (data.hasOwnProperty('songBarRadius')) ? data.songBarRadius : "5px",
         debug = (data.hasOwnProperty('debug')) ? data.debug : false;
     //console.log(loop);
 
@@ -214,28 +223,33 @@ var Playlist = function (data) {
                     shuffleArray(SongList);
                 }
                 //console.log(SongList);
-
+                var cockroach = "";
                 content = "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>";
                 for (i = 0; i < links.length; i++) {
                     currently_playing[i] = false;
                     content += "<div class='song " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='song-" + i + "'>";
+                    content += "<div class='trackpercent' id='trackpercent-" + i + "'><div class='fillpercent' id='fillpercent-" + i + "'></div></div><br>";
+                    /*Make this into a canvas later?*/
+                    content += "<div clear='both'><span class='controls left'>"
                     content += '<i style="cursor: pointer" id="fback-button-' + i + '" class="fa fa-fast-backward player"></i>';
                     content += '<i style="cursor: pointer" id="back-button-' + i + '" class="fa fa-backward player"></i>';
                     content += "<span class='play-pause' id='play-pause-" + i + "'>";
                     content += '<i style="cursor: pointer" id="play-pause-button-' + i + '" class="fa fa-play player"></i>';
-                    content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span>";
+                    content += "</span>";
                     content += '<i style="cursor: pointer" id="fwd-button-' + i + '" class="fa fa-forward player"></i>';
                     content += '<i style="cursor: pointer" id="ffwd-button-' + i + '" class="fa fa-fast-forward player"></i>';
                     content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player"></i>';
-                    content += (displayName) ? '<p>' + links[i] + '</p>' : '';
-                    content += "</div>";
-                    content += "<audio " + ((debug) ? "controls" : "") + " " + loop + " class = 'track' id = 'track-" + i + "' > ";
-                    content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio>";
-                    //                    content += "<hr>";
+                    content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span></div>";
+                    content += (displayName) ? '<div><p>' + links[i] + '</p></div>' : '';
+                    content += "</div>"
+                    cockroach += "<audio " + ((debug) ? "controls" : "") + " " + loop + " class = 'track' id = 'track-" + i + "' > ";
+                    cockroach += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio><br>";
 
                 }
-                content += "<style>.hidden{visibility: collapse; display:none}.right{float:right}.song{width:" + ((data.hasOwnProperty('width')) ? data.width : "500px") + "}.player{padding-left:5px;padding-right:5px}.highlight{color:#aaa}</style>";
-                PlaylistElement.innerHTML = content;
+                content += "<style>"
+                content += "i{float:left}.song{background-color:"+songBarBackground+"; color:"+songBarColor+"; border-radius:"+songBarRadius+"}.hidden{visibility: collapse; display:none}.left{float:left}.right{float:right}.song{width:" + ((data.hasOwnProperty('width')) ? data.width : "500px") + "}.player{padding-left:5px;padding-right:5px}.highlight{color:"+songBarHighlight+"}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}"
+                content += "</style>";
+                PlaylistElement.innerHTML = content + "<br>" + cockroach;
 
                 var tracks = document.getElementsByClassName('track');
                 //console.log("Tracks length: " + tracks.length);
@@ -251,53 +265,31 @@ var Playlist = function (data) {
                     document.getElementsByClassName('fa-fast-backward')[c].onclick = function () {
                         playPrevious();
                     }
-                }
-
-                for (c = 0; c < tracks.length; c++) { //hehe
+                    
                     var tk = document.getElementById('track-' + c);
 
                     //console.log(tk.id);
 
                     tk.addEventListener('timeupdate', function () {
-                        //console.log(this);
-                        var ms = this.currentTime * 1000;
-                        //console.log(this.id+": "+currentTimeMs);
+                        var ms = this.currentTime;
 
-                        var min = (ms / 1000 / 60) << 0,
-                            sec = (ms / 1000) % 60;
-                        //console.log(min + " :: " + sec);
-                        //                        //console.log((this.id.match(/\d/g).toString().replace(/,/g, "")));
+                        var min = (ms / 60) << 0,
+                            sec = (ms) % 60;
 
-                        document.getElementById('tracktime-' + (this.id.match(/\d/g).toString().replace(/,/g, ""))).innerHTML = (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec)));
+                        var TID = (this.id.match(/\d/g).toString().replace(/,/g, ""));
+
+                        document.getElementById('tracktime-' + TID).innerHTML = (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec)));
+                        //console.log(Math.floor(100 * (document.getElementById("track-" + TID)).currentTime / (document.getElementById("track-" + TID)).duration));
+                        var per = Math.ceil(100 * (document.getElementById("track-" + TID)).currentTime / (document.getElementById("track-" + TID)).duration);
+                        document.getElementsByClassName('fillpercent')[TID].style.width = ( ((per <= 100)? per : 100) + "%");
+                        document.getElementsByClassName('fillpercent')[TID].style.height = "100%";
+                        document.getElementsByClassName('fillpercent')[TID].style.backgroundColor = progressBarColor;
+
 
                     }, false);
 
                     tk.addEventListener('ended', function () {
-                        //console.log('Song has ended');
                         playNext();
-                        //var play_pause = document.getElementById("play-pause-button-" + SongList[currentSong]);
-                        //play_pause.className = "player fa fa-play";
-                        //currentSong++;
-                        //currentSong = currentSong % SongList.length;
-                        //
-                        //var tracks2 = document.getElementsByClassName('song');
-                        //var x;
-                        //for (x = 0; x < tracks2.length; x++) {
-                        //    var tk2 = tracks2[x];
-                        //    if (tk2.id.match(/\d/g) == SongList[currentSong]) {
-                        //        tk2.className = 'song';
-                        //    } else {
-                        //        tk2.className = 'song hidden';
-                        //    }
-                        //}
-                        //
-                        //var next = document.getElementById('track-' + SongList[currentSong]);
-                        //next.play();
-                        //document.getElementById('play-pause-button-' + SongList[currentSong]).className = "player fa fa-pause";
-                        //
-                        //console.log("Now Playing song: " + SongList[currentSong]);
-
-
                     })
 
                     window.onkeyup = function (e) {
