@@ -48,72 +48,82 @@
 
 
     <div id="coolMusic"></div>
+    <div id="videoTest"></div>
 
     <script src="script.js"></script>
 
     <script>
         new Playlist({
-            elementName: 'coolMusic',
-            links: [
-                "/Music/Banana%20by%20Jake%20Chudnow.mp3",
-                "/Music/Carlin%20Dream%20by%20Jake%20Chudnow.mp3",
-                "/Music/Flan%20by%20Jake%20Chudnow.mp3",
-                "/Music/Going%20Down%20by%20Jake%20Chudnow.mp3",
-                "/Music/Hanami%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
-                "/Music/Jake%20Chudnow%20-%20Hydrogen.mp3",
-                "/Music/Jake%20Chudnow%20-%20Lions%20Tigers%20and%20Apes%20Part%20II%20%5BHD%5D.mp3",
-                "/Music/Olive%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
-                "/Music/Pressed%20Pennies%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
-                "/Music/Shock%20One%20-%20Polygon%20%5BFt.%20Reija%5D.mp3",
-                "/Music/Shona%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
-                "/Music/Sunday%20(Music%20Video)%20by%20Jake%20Chudnow%20%5BHD%5D.mp3"
-            ],
-            showAll: false
-//            songBarHighlight: "#060",,
-//            songBarBorder: '5px solid #0a0',
-//            width: "50%"
+            elementName: "videoTest",
+            mediaType: 'video',
+            folder: 'Videos'
+//            links: [
+//                "Videos/Pressed Pennies by Jake Chudnow [HD].mp4",
+//                "Videos/Shona by Jake Chudnow HD.mp4"
+//            ]
         });
 
-        /*JQUERY IMPLEMENTATION OF THE CODE - DO NOT USE!*/
-/*
-                new Playlist({
-                    elementName: 'coolMusic',
-                    folder: 'Music',
-                    width: "80%"
-                });
 
-        //testing multiple playlists locker... it works.
-                new Playlist({
-                    elementName: 'coolMusic',
-                    links: [
-                        "undertale/toby fox - UNDERTALE Soundtrack - 01.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 02.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 03.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 04.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 05.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 06.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 07.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 08.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 09.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 10.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 11.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 12.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 13.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 14.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 15.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 16.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 17.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 18.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 19.mp3",
-                        "undertale/toby fox - UNDERTALE Soundtrack - 20.mp3"
-                    ],
-                    showAll: false,
-                    progressBarColor: "red",
-                    progressBarBorder: "1px solid red",
-                    width: "1000px"
-                })/*
-                */
-        
+        //        new Playlist({
+        //            elementName: 'coolMusic',
+        //            links: [
+        //                "/Music/Pressed%20Pennies%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
+        //                "/Music/Shona%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
+        //                "/Music/Olive%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
+        //                "/Music/Carlin%20Dream%20by%20Jake%20Chudnow.mp3",
+        //                "/Music/Flan%20by%20Jake%20Chudnow.mp3",
+        //                "/Music/Going%20Down%20by%20Jake%20Chudnow.mp3",
+        //                "/Music/Hanami%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
+        //                "/Music/Jake%20Chudnow%20-%20Hydrogen.mp3",
+        //                "/Music/Jake%20Chudnow%20-%20Lions%20Tigers%20and%20Apes%20Part%20II%20%5BHD%5D.mp3",
+        //                "/Music/Sunday%20(Music%20Video)%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
+        //                "/Music/Banana%20by%20Jake%20Chudnow.mp3"
+        //            ],
+        ////            showAll: false
+        ////            songBarHighlight: "#060",,
+        ////            songBarBorder: '5px solid #0a0',
+        ////            width: "50%"
+        //        });
+
+        /*JQUERY IMPLEMENTATION OF THE CODE - DO NOT USE!*/
+        /*
+                        new Playlist({
+                            elementName: 'coolMusic',
+                            folder: 'Music',
+                            width: "80%"
+                        });
+
+                //testing multiple playlists locker... it works.
+                        new Playlist({
+                            elementName: 'coolMusic',
+                            links: [
+                                "undertale/toby fox - UNDERTALE Soundtrack - 01.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 02.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 03.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 04.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 05.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 06.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 07.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 08.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 09.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 10.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 11.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 12.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 13.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 14.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 15.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 16.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 17.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 18.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 19.mp3",
+                                "undertale/toby fox - UNDERTALE Soundtrack - 20.mp3"
+                            ],
+                            showAll: false,
+                            progressBarColor: "red",
+                            progressBarBorder: "1px solid red",
+                            width: "1000px"
+                        })/*
+                        */
     </script>
 
 </body>

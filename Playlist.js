@@ -12,9 +12,9 @@ var Playlist = function (data) {
         var SongList = [],
             elementName = (data.hasOwnProperty('elementName')) ? data.elementName : 'playlist',
             currentSong = -1,
-            //            folder = (data.hasOwnProperty('folder')) ? data.folder : null,
             folder = (data.hasOwnProperty('folder')) ? data.folder : null,
-            extension = (data.hasOwnProperty('filetype')) ? data.filetype : '.mp3',
+            mediaType = (data.hasOwnProperty('mediaType')) ? data.mediaType : 'audio',
+            extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.mp3' : '.mp4',
             shuffle = (data.hasOwnProperty('shuffle')) ? data.shuffle : false,
             loop = (data.hasOwnProperty('loop')) ? data.loop : false,
             autoplay = (data.hasOwnProperty('autoplay')) ? data.autoplay : false,
@@ -32,6 +32,9 @@ var Playlist = function (data) {
             songBarHighlight = (data.hasOwnProperty('songBarHighlight')) ? data.songBarHighlight : "#aaa",
             songBarBorder = (data.hasOwnProperty('songBarBorder')) ? data.songBarBorder : "2px solid " + songBarHighlight + "",
             songBarRadius = (data.hasOwnProperty('songBarRadius')) ? data.songBarRadius : "5px",
+            videoHeight = (data.hasOwnProperty('videoHeight')) ? data.videoHeight : '240px',
+            videoWidth = (data.hasOwnProperty('videoWidth')) ? data.videoWidth : '320px',
+            videoborder = (data.hasOwnProperty('videoborder')) ? data.videoborder : '1px solid ' + songBarHighlight + '',
             skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000;
         debug = (data.hasOwnProperty('debug')) ? data.debug : false;
 
@@ -67,10 +70,10 @@ var Playlist = function (data) {
                 }
 
                 if (showAll) {
-                    var top = document.getElementById('song-' + currently_playing.indexOf(true)).documentOffsetTop() - (window.innerHeight / 2);
+                    var top = document.getElementById('media-' + currently_playing.indexOf(true)).documentOffsetTop() - (window.innerHeight / 2);
                     window.scrollTo(0, top);
 
-                    //        document.getElementById('song-'+currently_playing.indexOf(true)).scrollIntoView({
+                    //        document.getElementById('media-'+currently_playing.indexOf(true)).scrollIntoView({
                     //            behavior: "smooth",
                     //            block: "start"
                     //        });
@@ -90,15 +93,15 @@ var Playlist = function (data) {
             currentSong = currentSong % SongList.length;
             currently_playing[SongList[currentSong]] = true;
 
-            var tracks = document.getElementsByClassName('song');
+            var tracks = document.getElementsByClassName('media');
             var x;
             for (x = 0; x < tracks.length; x++) {
                 var xtrack = tracks[x];
                 if (!showAll) {
                     if (currently_playing[x]) {
-                        xtrack.className = 'song';
+                        xtrack.className = 'media';
                     } else {
-                        xtrack.className = 'song hidden';
+                        xtrack.className = 'media hidden';
                     }
                 }
             }
@@ -128,15 +131,15 @@ var Playlist = function (data) {
                     currentSong = currentSong % SongList.length;
                     currently_playing[SongList[currentSong]] = true;
 
-                    var tracks = document.getElementsByClassName('song');
+                    var tracks = document.getElementsByClassName('media');
                     var x;
                     for (x = 0; x < tracks.length; x++) {
                         var xtrack = tracks[x];
                         if (!showAll) {
                             if (currently_playing[x]) {
-                                xtrack.className = 'song';
+                                xtrack.className = 'media';
                             } else {
-                                xtrack.className = 'song hidden';
+                                xtrack.className = 'media hidden';
                             }
                         }
                     }
@@ -163,15 +166,15 @@ var Playlist = function (data) {
                     currentSong = currentSong % SongList.length;
                     currently_playing[SongList[currentSong]] = true;
 
-                    var tracks = document.getElementsByClassName('song');
+                    var tracks = document.getElementsByClassName('media');
                     var x;
                     for (x = 0; x < tracks.length; x++) {
                         var xtrack = tracks[x];
                         if (!showAll) {
                             if (currently_playing[x]) {
-                                xtrack.className = 'song';
+                                xtrack.className = 'media';
                             } else {
-                                xtrack.className = 'song hidden';
+                                xtrack.className = 'media hidden';
                             }
                         }
                     }
@@ -240,15 +243,15 @@ var Playlist = function (data) {
                     }
                 }
 
-                var tracks = document.getElementsByClassName('song');
+                var tracks = document.getElementsByClassName('media');
                 var x;
                 for (x = 0; x < tracks.length; x++) {
                     var xtrack = tracks[x];
                     if (!showAll) {
                         if (currently_playing[x]) {
-                            xtrack.className = 'song';
+                            xtrack.className = 'media';
                         } else {
-                            xtrack.className = 'song hidden';
+                            xtrack.className = 'media hidden';
                         }
                     }
                 }
@@ -272,6 +275,12 @@ var Playlist = function (data) {
 
             /*JQUERY CODE IS HERE, COMMENT OUT TO LINE 505-ish*/
 
+            if (mediaType != 'audio' && mediaType != 'video') {
+                console.error('Playlist-js: the mediaType must be either audio or video');
+            } else {
+                console.error("Playlist-js: Media type is " + mediaType);
+            }
+
             var main = function () {
                 if (links) {
                     if (links.length == 0) {
@@ -290,7 +299,10 @@ var Playlist = function (data) {
                         for (i = 0; i < links.length; i++) {
                             //console.log("i:" + i + " - currentSong: " + currentSong + " - SongList[currentSong]:" + SongList[currentSong]);
                             currently_playing[i] = false;
-                            content += "<div class='song " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='song-" + i + "'>";
+                            content += "<div class='media " + ((showAll) ? "" : ((i == SongList[currentSong]) ? "" : "hidden")) + "' id='media-" + i + "'>";
+                            content += "<div class='media-container'><" + mediaType + " " + ((mediaType == 'video') ? "width='" + videoWidth + "' height='" + videoHeight + "' " : '') + " " + ((debug) ? "controls" : "") + " " + ((loop) ? 'loop' : '') + " class = 'track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' id = 'track-" + i + "' > ";
+
+                            content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element</" + mediaType + "></div><br>";
                             content += "<div class='trackpercent' id='trackpercent-" + i + "'><div class='fillpercent' id='fillpercent-" + i + "'></div></div><br>";
                             /*Make this into a canvas later?*/
                             content += "<div clear='both'><span id='controls-" + i + "' class='controls left " + ((alwaysShowControls) ? '' : ((i == SongList[currentSong]) ? "" : "hidden")) + "'>"
@@ -304,16 +316,14 @@ var Playlist = function (data) {
                             content += '<i style="cursor: pointer" id="shuffle-button-' + i + '" class="fa fa-random player ' + ((shuffle) ? '' : 'highlight') + '"></i>';
                             content += '<i style="cursor: pointer" id="loop-button-' + i + '" class="fa fa-retweet player ' + ((loop) ? '' : 'highlight') + '"></i>';
                             content += "</span><span class='right' id='tracktime-" + i + "'>0:00</span></div>";
-                            content += (displayName) ? '<div><p>' + links[i].split('/')[links[i].split('/').length-1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + '</p></div>' : '';
+                            content += (displayName) ? '<div><p>' + links[i].split('/')[links[i].split('/').length - 1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + '</p></div>' : '';
                             content += "</div>";
-                            
+
                             /*******************Debugging stuffs*********************/
-                            cockroach += "<audio " + ((debug) ? "controls" : "") + " " + ((loop) ? 'loop' : '') + " class = 'track' id = 'track-" + i + "' > ";
-                            cockroach += "<source src='" + links[i] + "' > Your browser does not support the HTML5 Audio element</audio><br>";
 
                         }
                         content += "<style>"
-                        content += "i{float:left}.song{padding: 5px; margin: 10px auto;border: " + songBarBorder + ";width:" + ((data.hasOwnProperty('width')) ? data.width : "75%") + ";background-color:" + songBarBackground + "; color:" + songBarColor + "; border-radius:" + songBarRadius + "}.hidden{visibility: collapse; display:none}.left{float:left}.right{float:right}.player{padding-left:5px;padding-right:5px}.highlight{color:" + songBarHighlight + "}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}"
+                        content += "i{float:left}.media{padding: 5px; margin: 10px auto;border: " + songBarBorder + ";width:" + ((data.hasOwnProperty('width')) ? data.width : "75%") + ";background-color:" + songBarBackground + "; color:" + songBarColor + "; border-radius:" + songBarRadius + "}.hidden{visibility: hidden; display:none; padding: 0; margin: 0;}.left{float:left}.right{float:right}.player{padding-left:5px;padding-right:5px}.highlight{color:" + songBarHighlight + "}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}.center{width:100%; margin: 0 auto}.media-container{width:100%}.track{cursor:pointer;" + ((mediaType == 'video') ? 'border:' + videoborder : '') + "}"
                         content += "</style>";
                         PlaylistElement.innerHTML = content + "<br>" + cockroach;
 
@@ -323,6 +333,35 @@ var Playlist = function (data) {
                         var c;
 
                         for (c = 0; c < document.getElementsByClassName('fa-random').length; c++) {
+                            document.getElementsByClassName('track')[c].onclick = function () {
+                                //console.log(this.id);
+                                var patt = /track\-[0-9]+/g;
+                                if (this.id.match(patt)) {
+                                    var song_number = /[0-9]+/g.exec(this.id)[0];
+                                    currentSong = SongList.indexOf(Math.floor(song_number));
+                                    //console.log(song_number);
+                                    //console.log(currently_playing.length);
+                                    var a;
+                                    for (a = 0; a < currently_playing.length; a++) {
+                                        if (a != song_number) {
+                                            currently_playing[a] = false;
+                                        }
+                                    }
+                                    currently_playing[song_number] = !currently_playing[song_number];
+                                    for (a = 0; a < currently_playing.length; a++) {
+                                        var track = document.getElementById("track-" + a),
+                                            play_pause = document.getElementById("play-pause-button-" + a);
+                                        if (currently_playing[a]) {
+                                            play_pause.className = "player fa fa-pause";
+                                            track.play();
+                                        } else {
+                                            play_pause.className = "player fa fa-play";
+                                            track.pause();
+                                        }
+                                    }
+                                }
+
+                            }
                             document.getElementsByClassName('play-pause')[c].onclick = function () {
                                 //console.log(this.id);
                                 var patt = /play\-pause\-[0-9]+/g;
@@ -485,38 +524,38 @@ var Playlist = function (data) {
                 }
             }
 
-//            if (folder) {
-//                console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)')
-//                var f = folder;
-//                $.ajax({
-//                    url: f,
-//                    success: function (stuff) {
-//                        links = [];
-//                        if (extension == '.*') {
-//                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
-//                                $(stuff).find("a:contains(" + value + ")").each(function () {
-//                                    var ix = $(this).attr("href");
-//                                    links[index] = ix.replace(/%20/g, " ");
-//                                });
-//                            });
-//                        } else {
-//                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
-//                                var ix = $(this).attr("href");
-//                                links[ind3x] = ix.replace(/%20/g, " ");
-//                            });
-//                        }
-//                        console.log(links);
-//
-//                        main();
-//
-//                    },
-//                    error: function (xlh) {
-//                        console.error("ERROR: " + xlh);
-//                    }
-//                });
-//            }
+            if (folder) {
+                console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)')
+                var f = folder;
+                $.ajax({
+                    url: f,
+                    success: function (stuff) {
+                        links = [];
+                        if (extension == '.*') {
+                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
+                                $(stuff).find("a:contains(" + value + ")").each(function () {
+                                    var ix = $(this).attr("href");
+                                    links[index] = ix.replace(/%20/g, " ");
+                                });
+                            });
+                        } else {
+                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
+                                var ix = $(this).attr("href");
+                                links[ind3x] = ix.replace(/%20/g, " ");
+                            });
+                        }
+                        console.log(links);
 
                         main();
+
+                    },
+                    error: function (xlh) {
+                        console.error("ERROR: " + xlh);
+                    }
+                });
+            }
+
+            main();
 
             /************************NON-JQUERY CODE*************************/
 
