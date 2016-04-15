@@ -47,15 +47,28 @@
     </div>
 
 
-    <div id="playlist"></div>
+    <div id="coolMusic"></div>
+    
+    <div id="undertale"></div>
+    
     <script src="script.js"></script>
 
     <script>
         new Playlist({
+            elementName: 'coolMusic',
             links: [
-                "Music/Shona%20by%20Jake%20Chudnow%20%5BHD%5D.mp3",
-                "Music/Daniel%20Holter%20&%20Matt%20Smith%20-%20West%20Stylus.mp3",
-                "Music/Shock%20One%20-%20Polygon%20%5BFt.%20Reija%5D.mp3",
+                "Music/Shona by Jake Chudnow [HD].mp3",
+                "Music/Daniel Holter & Matt Smith - West Stylus.mp3",
+                "Music/Shock One - Polygon [Ft. Reija].mp3"
+            ],
+            showAll: false,
+//            songBarHighlight: "red",
+            width: "80%"
+        });
+        
+        new Playlist({
+            elementName: 'undertale',
+            links: [
                 "Music/toby fox - UNDERTALE Soundtrack - 01.mp3",
                 "Music/toby fox - UNDERTALE Soundtrack - 02.mp3",
                 "Music/toby fox - UNDERTALE Soundtrack - 03.mp3",
@@ -78,8 +91,10 @@
                 "Music/toby fox - UNDERTALE Soundtrack - 20.mp3"
             ],
             showAll: false,
-            width: "700px"
-        });
+            progressBarColor: "red",
+            progressBarBorder: "1px solid red",
+            width: "1000px"
+        })
     </script>
 
 </body>

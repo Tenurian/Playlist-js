@@ -1,12 +1,8 @@
-.song{
-    padding: 5px;
-    margin: 10px auto;
-    border: 1px solid #aaa;
 /*
-    background: #060;
-    color: white;
-*/
+.song{
+    padding: 5px; margin: 10px auto;border: 1px solid #aaa;
 }
+*/
 
 .logo{
     float: left;
