@@ -305,6 +305,7 @@ var Playlist = function (data) {
                             content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element</" + mediaType + "></div><br>";
                             content += "<div                       id='" + elementName + "-trackpercent-" + i + "'      class='" + elementName + "-trackpercent'>"
                             content += "<div                       id='" + elementName + "-fillpercent-" + i + "'       class='" + elementName + "-fillpercent'></div></div><br>";
+                           
                             content += "<div clear='both'><span    id='" + elementName + "-controls-" + i + "'          class='" + elementName + "-controls left " + ((alwaysShowControls) ? '' : ((i == SongList[currentSong]) ? "" : "hidden")) + "'>"
                             content += "<i style='cursor: pointer' id='" + elementName + "-fback-button-" + i + "'      class='fa fa-fast-backward player'></i>";
                             content += "<i style='cursor: pointer' id='" + elementName + "-back-button-" + i + "'       class='fa fa-backward player'></i>";
@@ -323,7 +324,19 @@ var Playlist = function (data) {
 
                         }
                         content += "<style>"
-                        content += "i{float:left}.media{padding: 5px; margin: 10px auto;border: " + songBarBorder + ";width:" + ((data.hasOwnProperty('width')) ? data.width : "75%") + ";background-color:" + songBarBackground + "; color:" + songBarColor + "; border-radius:" + songBarRadius + "}.hidden{visibility: hidden; display:none; padding: 0; margin: 0;}.left{float:left}.right{float:right}.player{padding-left:5px;padding-right:5px}.highlight{color:" + songBarHighlight + "}.clear-left{clear: left}.trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}.trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}.center{width:100%; margin: 0 auto}.media-container{width:100%}.track{cursor:pointer;" + ((mediaType == 'video') ? 'border:' + videoborder : '') + "}"
+                        content += "i{float:left}
+                            .media{padding: 5px; margin: 10px auto;border: " + songBarBorder + ";width:" + ((data.hasOwnProperty('width')) ? data.width : "75%") + ";background-color:" + songBarBackground + "; color:" + songBarColor + "; border-radius:" + songBarRadius + "}
+                        .hidden{visibility: hidden; display:none; padding: 0; margin: 0;}
+                        .left{float:left}
+                        .right{float:right}
+                        .player{padding-left:5px;padding-right:5px}
+                        .highlight{color:" + songBarHighlight + "}
+                        .clear-left{clear: left}
+                        ."+elementName+"-trackpercent{background-color: " + progressBarBackground + ";height:" + progressBarHeight + "; width:100%; border:" + progressBarBorder + "; border-radius:" + progressBarRadius + "}
+                        ."+elementName+"-trackpercent>div{float:left; height:20px; background-color: '" + progressBarColor + "'}
+                        .center{width:100%; margin: 0 auto}
+                        .media-container{width:100%}
+                        ."+elementName+"-track{cursor:pointer;" + ((mediaType == 'video') ? 'border:' + videoborder : '') + "}"
                         content += "</style>";
                         PlaylistElement.innerHTML = content + "<br>" + cockroach;
 
@@ -333,7 +346,7 @@ var Playlist = function (data) {
                         var c;
 
                         for (c = 0; c < document.getElementsByClassName(elementName + '-track').length; c++) {
-                            document.getElementById(elementName + '-track-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-track-' + c).onclick = function () {
                                 //console.log(this.id);
                                 var patt = /track\-[0-9]+/g;
                                 if (this.id.match(patt)) {
@@ -362,8 +375,7 @@ var Playlist = function (data) {
                                 }
 
                             }
-                            console.log(elementName + '-play-pause-' + [c]);
-                            document.getElementById(elementName + '-play-pause-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-play-pause-' + c).onclick = function () {
                                 //console.log(this.id);
                                 var patt = /play\-pause\-[0-9]+/g;
                                 if (this.id.match(patt)) {
@@ -391,22 +403,22 @@ var Playlist = function (data) {
                                     }
                                 }
                             }
-                            document.getElementById(elementName + '-fwd-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-fwd-button-' + c).onclick = function () {
                                 skipForward();
                             }
-                            document.getElementById(elementName + '-back-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-back-button-' + c).onclick = function () {
                                 skipBackward();
                             }
-                            document.getElementById(elementName + '-shuffle-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-shuffle-button-' + c).onclick = function () {
                                 shuffleToggle();
                             }
-                            document.getElementById(elementName + '-loop-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-loop-button-' + c).onclick = function () {
                                 loopToggle();
                             }
-                            document.getElementById(elementName + '-ffwd-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-ffwd-button-' + c).onclick = function () {
                                 playPrevious();
                             }
-                            document.getElementById(elementName + '-fback-button-' + [c]).onclick = function () {
+                            document.getElementById(elementName + '-fback-button-' + c).onclick = function () {
                                 var track = document.getElementById(elementName + '-track-' + SongList[currentSong]),
                                     play_pause = document.getElementById(elementName + "-play-pause-button-" + SongList[currentSong]);
                                 if (!track.paused) {
