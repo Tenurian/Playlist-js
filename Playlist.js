@@ -38,6 +38,34 @@ var Playlist = function (data) {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
     };
 
+    var attemptGoFullscreen = function () {
+        if (mediaType == "video") {
+            var track = document.getElementById(elementName + "-track-" + currentTarget);
+            if (track.requestFullscreen) {
+                if (isFullscreen) {
+                    track.exitFullscreen();
+                } else {
+                    track.requestFullscreen();
+                }
+            } else if (track.mozRequestFullScreen) {
+                if (isFullscreen) {
+                    track.mozCancelFullScreen();
+                } else {
+                    track.mozRequestFullScreen();
+                }
+            } else if (track.webkitRequestFullscreen) {
+                if (isFullscreen) {
+                    track.webkitExitFullscreen();
+                } else {
+                    track.webkitRequestFullscreen();
+                }
+            }
+            if (track.paused) {
+                track.play();
+            }
+            isFullscreen = !isFullscreen;
+        }
+    }
 
     function shuffleArray(a) {
         var j, x, i;
@@ -69,6 +97,9 @@ var Playlist = function (data) {
         }
     }
     var playNext = function () {
+        if (isFullscreen) {
+            attemptGoFullscreen();
+        }
         if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
             togglePlayPause(currentTarget);
         }
@@ -77,6 +108,9 @@ var Playlist = function (data) {
         switchControls();
     }
     var playPrevious = function () {
+        if (isFullscreen) {
+            attemptGoFullscreen();
+        }
         if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
             togglePlayPause(currentTarget);
         }
@@ -146,34 +180,6 @@ var Playlist = function (data) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = progressBarColor;
         ctx.fillRect(0, 0, Math.ceil(canvas.width * (percent / 100)), canvas.height);
-    }
-    var attemptGoFullscreen = function () {
-        if (mediaType == "video") {
-            var track = document.getElementById(elementName + "-track-" + currentTarget);
-            if (track.requestFullscreen) {
-                if (isFullscreen) {
-                    track.exitFullscreen();
-                } else {
-                    track.requestFullscreen();
-                }
-            } else if (track.mozRequestFullScreen) {
-                if (isFullscreen) {
-                    track.mozCancelFullScreen();
-                } else {
-                    track.mozRequestFullScreen();
-                }
-            } else if (track.webkitRequestFullscreen) {
-                if (isFullscreen) {
-                    track.webkitExitFullscreen();
-                } else {
-                    track.webkitRequestFullscreen();
-                }
-            }
-            if (track.paused) {
-                track.play();
-            }
-            isFullscreen = !isFullscreen;
-        }
     }
 
     /*lel, what are conventions?*/
