@@ -32,6 +32,7 @@ var Playlist = function (data) {
         skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000,
         debug = (data.hasOwnProperty('debug')) ? data.debug : false,
         goFullscreen = false,
+        isFullscreen = false,
         mouseIsDown = false;
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
@@ -47,7 +48,6 @@ var Playlist = function (data) {
             a[j] = x;
         }
     }
-
     var skipForward = function () {
         var track = document.getElementById(elementName + "-track-" + currentTarget);
         if (track.currentTime + (skipAmount / 1000) < track.duration) {
@@ -140,7 +140,6 @@ var Playlist = function (data) {
             }
         }
     }
-
     var updateProgress = function (percent) {
         var canvas = document.getElementById(elementName + "-filler-" + currentTarget),
             ctx = canvas.getContext('2d');
@@ -148,16 +147,32 @@ var Playlist = function (data) {
         ctx.fillStyle = progressBarColor;
         ctx.fillRect(0, 0, Math.ceil(canvas.width * (percent / 100)), canvas.height);
     }
-
     var attemptGoFullscreen = function () {
         if (mediaType == "video") {
-            if (document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen();
-            } else if (document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen();
-            } else if (document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen();
+            var track = document.getElementById(elementName + "-track-" + currentTarget);
+            if (track.requestFullscreen) {
+                if (isFullscreen) {
+                    track.exitFullscreen();
+                } else {
+                    track.requestFullscreen();
+                }
+            } else if (track.mozRequestFullScreen) {
+                if (isFullscreen) {
+                    track.mozCancelFullScreen();
+                } else {
+                    track.mozRequestFullScreen();
+                }
+            } else if (track.webkitRequestFullscreen) {
+                if (isFullscreen) {
+                    track.webkitExitFullscreen();
+                } else {
+                    track.webkitRequestFullscreen();
+                }
             }
+            if (track.paused) {
+                track.play();
+            }
+            isFullscreen = !isFullscreen;
         }
     }
 
