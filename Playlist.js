@@ -33,12 +33,6 @@ var Playlist = function (data) {
         debug = (data.hasOwnProperty('debug')) ? data.debug : false,
         goFullscreen = false,
         mouseIsDown = false;
-    //
-    //    var temp = width;
-    //    width = '90%';
-    console.log(Math.ceil(Number(width.slice(0, -2)) * .9));
-    console.log(progressBarWidth);
-    //    width = temp;
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
     };
@@ -210,17 +204,11 @@ var Playlist = function (data) {
                     content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element";
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
-                    /******************** Replace this with canvas later ********************/
+                    /******************************* PlayBar *******************************/
 
                     content += "<div id='" + elementName + "-fill-bar-" + i + "' class='" + elementName + "-fill-bar'>";
                     content += "<canvas width='" + (Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + "' height='" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'>Your browser does not support the html5 canvas element</canvas>";
                     content += "</div>";
-
-                    console.log(progressBarWidth);
-                    console.log(typeof Number(progressBarBorder.split(" ")[0].slice(0, -2)));
-                    console.log(Number(progressBarBorder.split(" ")[0].slice(0, -2)));
-                    console.log((progressBarBorder.split(" ")[0].slice(0, -2)) * 2);
-                    console.log((Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)));
 
                     /**************************** Controls **********************************/
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
@@ -240,10 +228,9 @@ var Playlist = function (data) {
                 content += "<style>";
                 content += "#" + elementName + "{width:" + width + "; min-width: " + progressBarWidth + "; margin:0 auto; padding: 25px}";
                 content += ".fa{text-align:left; cursor: pointer; margin-left: 10px; margin-top: 10px}";
-                content += "." + elementName + "-media{padding:5px; margin 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "}";
+                content += "." + elementName + "-media{padding:5px; margin: 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "; min-width: " + (Number(Number(progressBarWidth.slice(0, -2)) + (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + 20) + "px}";
                 content += "." + elementName + "-media-container{text-align:center}";
                 content += "." + elementName + "-fill-bar{margin:0 auto;height:" + progressBarHeight + ";background-color:" + progressBarBackground + ";width:" + progressBarWidth + ";border:" + progressBarBorder + ";border-radius:" + progressBarRadius + "}";
-                //                content += "." + elementName + "-filler{float:left; height:calc(" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "px);background-color:" + progressBarColor + "}";
                 content += "." + elementName + "-filler{float:left; height:calc(" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "px);background-color: transparent; width:100%}";
                 content += "." + elementName + "-controls{ width: 100%; color:" + songBarColor + "}";
                 content += "." + elementName + "-controls .fa{z-index:3;text-align:left; color:" + songBarColor + "}";
@@ -297,7 +284,6 @@ var Playlist = function (data) {
                     track.onloadeddata = function () {
                         document.getElementById(elementName + "-play-pause-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + " fa fa-play";
                         document.getElementById(elementName + "-loading-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + "hidden";
-                        console.log(this.id + " loaded data");
                     }
 
                     document.getElementById(elementName + "-filler-" + c).addEventListener("mousedown", function (ev) {
@@ -362,7 +348,6 @@ var Playlist = function (data) {
                 document.getElementById(elementName).onkeydown = function (e) {
                     var key = e.keyCode ? e.keyCode : e.which;
                     var locker;
-                    //                    console.log("Key " + key + " was pressed on " + elementName);
 
                     if (!locker) {
                         switch (key) {
