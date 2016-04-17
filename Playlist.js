@@ -66,7 +66,6 @@ var Playlist = function (data) {
             isFullscreen = !isFullscreen;
         }
     }
-
     function shuffleArray(a) {
         var j, x, i;
         for (i = a.length; i; i -= 1) {
@@ -122,7 +121,7 @@ var Playlist = function (data) {
         loop = !loop;
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-loop-" + c).className = (loop) ? 'fa fa-retweet' : 'fa fa-retweet highlight';
+            document.getElementById(elementName + "-loop-" + c).className = (loop) ? 'fa fa-retweet' : 'fa fa-retweet '+elementName+'-highlight';
         }
     }
     var toggleShuffle = function () {
@@ -133,7 +132,7 @@ var Playlist = function (data) {
         }
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-shuffle-" + c).className = (shuffle) ? 'fa fa-random' : 'fa fa-random highlight';
+            document.getElementById(elementName + "-shuffle-" + c).className = (shuffle) ? 'fa fa-random' : 'fa fa-random '+elementName+'-highlight';
             if (!shuffle) {
                 SongList[c] = c;
             }
@@ -170,7 +169,7 @@ var Playlist = function (data) {
         }
         if (!showAll) {
             for (c = 0; c < links.length; c++) {
-                document.getElementById(elementName + "-media-" + c).className = elementName + "-media-" + c + " " + ((c == currentTarget) ? "" : "hidden");
+                document.getElementById(elementName + "-media-" + c).className = elementName + "-media " + ((c == currentTarget) ? "" : " hidden");
             }
         }
     }
@@ -235,12 +234,12 @@ var Playlist = function (data) {
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
                     content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-rwd-" + i + "' class='fa fa-backward " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play highlight " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play "+elementName+"-highlight " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-fwd-" + i + "' class='fa fa-forward " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-skip-" + i + "' class='fa fa-fast-forward " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : 'highlight') + " " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : 'highlight') + " " + controlsSize + "'></i>";
-                    content += "<span id='" + elementName + "-loading-" + i + "' ><i class='fa fa-cog fa-spin  fa-fw margin-bottom highlight " + controlsSize + "'></i>Loading media...</span>";
+                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : elementName+'-highlight') + " " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : elementName+'-highlight') + " " + controlsSize + "'></i>";
+                    content += "<span id='" + elementName + "-loading-" + i + "' ><i class='fa fa-cog fa-spin  fa-fw margin-bottom "+elementName+-"highlight " + controlsSize + "'></i>Loading media...</span>";
                     content += "<span id='" + elementName + "-time-" + i + "' class='" + elementName + "-time'><h5>0:00</h5></span>"
                     content += "</div>";
                     content += "</div>";
@@ -259,7 +258,7 @@ var Playlist = function (data) {
                 content += "." + elementName + "-time h5{" + ((fontSize) ? "font-size:" + fontSize + "px" : "") + "}";
                 content += "." + elementName + "-name{width:100%;text-align:center}";
                 content += "." + elementName + "-name>h3{margin-top:10px;padding-top:0; color:" + songBarColor + "}";
-                content += ".highlight{color:" + songBarHighlight + " !important}";
+                content += "." + elementName + "-highlight{color:" + songBarHighlight + " !important}";
                 content += "</style>";
                 /*************** Manual Styling for now ***************/
                 //                document.getElementById(elementName).style.width = "75%";
