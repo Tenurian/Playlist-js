@@ -5,16 +5,18 @@ var Playlist = function (data) {
         folder = (data.hasOwnProperty('folder')) ? data.folder : null,
         mediaType = (data.hasOwnProperty('mediaType')) ? data.mediaType : 'audio',
         extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.mp3' : '.mp4',
+        focusPlaying = (data.hasOwnProperty('focusPlaying')) ? data.focusPlaying : false,
         shuffle = (data.hasOwnProperty('shuffle')) ? data.shuffle : false,
         loop = (data.hasOwnProperty('loop')) ? data.loop : false,
-        autoplay = (data.hasOwnProperty('autoplay')) ? data.autoplay : false,
         links = (data.hasOwnProperty('links')) ? data.links : false,
         showAll = (data.hasOwnProperty('showAll')) ? data.showAll : true,
         alwaysShowControls = (data.hasOwnProperty('alwaysShowControls')) ? data.alwaysShowControls : true,
+        controlsSize = (data.hasOwnProperty('controlsSize')) ? data.controlsSize : 0,
+        fontSize = (data.hasOwnProperty('fontSize')) ? data.fontSize : false,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
         progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
-        progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid #3f79e0",
+        progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid" + progressBarColor,
         progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
         progressBarRadius = (data.hasOwnProperty('progressBarRadius')) ? data.progressBarRadius : "2px",
         songBarBackground = (data.hasOwnProperty('songBarBackground')) ? data.songBarBackground : "#000",
@@ -22,11 +24,12 @@ var Playlist = function (data) {
         songBarHighlight = (data.hasOwnProperty('songBarHighlight')) ? data.songBarHighlight : "#aaa",
         songBarBorder = (data.hasOwnProperty('songBarBorder')) ? data.songBarBorder : "2px solid " + songBarHighlight + "",
         songBarRadius = (data.hasOwnProperty('songBarRadius')) ? data.songBarRadius : "5px",
-        videoHeight = (data.hasOwnProperty('videoHeight')) ? data.videoHeight : '240px',
-        videoWidth = (data.hasOwnProperty('videoWidth')) ? data.videoWidth : '320px',
+        videoWidth = (data.hasOwnProperty('videoWidth')) ? data.videoWidth : 'auto',
+        videoHeight = (data.hasOwnProperty('videoHeight')) ? data.videoHeight : 'auto',
         videoborder = (data.hasOwnProperty('videoborder')) ? data.videoborder : '1px solid ' + songBarHighlight + '',
         skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000,
-        debug = (data.hasOwnProperty('debug')) ? data.debug : false;
+        debug = (data.hasOwnProperty('debug')) ? data.debug : false,
+        goFullscreen = false;
 
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
@@ -50,16 +53,18 @@ var Playlist = function (data) {
         document.getElementById(elementName + "-track-" + currentTarget).currentTime -= (skipAmount / 1000);
     }
     var playNext = function () {
-        togglePlayPause(currentTarget);
+        if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
+            togglePlayPause(currentTarget);
+        }
         currentTarget = SongList[((SongList.indexOf(currentTarget) + 1) % SongList.length)];
-        console.log(currentTarget);
         togglePlayPause(currentTarget);
         switchControls();
     }
     var playPrevious = function () {
-        togglePlayPause(currentTarget);
+        if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
+            togglePlayPause(currentTarget);
+        }
         currentTarget = SongList[((SongList.length + SongList.indexOf(currentTarget) - 1) % SongList.length)];
-        console.log(currentTarget);
         togglePlayPause(currentTarget);
         switchControls();
     }
@@ -89,46 +94,91 @@ var Playlist = function (data) {
         if (currentTarget == number) {
             if (track.paused) {
                 track.play();
-                document.getElementById(elementName + "-play-pause-" + number).className = "fa fa-pause";
+                document.getElementById(elementName + "-play-pause-" + number).className = controlsSize + " fa fa-pause";
             } else {
                 track.pause();
-                document.getElementById(elementName + "-play-pause-" + number).className = "fa fa-play";
+                document.getElementById(elementName + "-play-pause-" + number).className = controlsSize + " fa fa-play";
             }
         } else {
             document.getElementById(elementName + "-track-" + currentTarget).pause();
-            document.getElementById(elementName + "-play-pause-" + currentTarget).className = "fa fa-play";
-            document.getElementById(elementName + "-play-pause-" + number).className = "fa fa-pause";
+            document.getElementById(elementName + "-play-pause-" + currentTarget).className = controlsSize + " fa fa-play";
+            document.getElementById(elementName + "-play-pause-" + number).className = controlsSize + " fa fa-pause";
             track.play();
             currentTarget = number;
         }
-
-        var top = document.getElementById(elementName + '-track-' + currentTarget).documentOffsetTop() - (window.innerHeight / 2);
-        window.scrollTo(0, top);
+        if (focusPlaying) {
+            var top = document.getElementById(elementName + '-track-' + currentTarget).documentOffsetTop() - (window.innerHeight / 2);
+            window.scrollTo(0, top);
+        }
     }
     var switchControls = function () {
+        var c;
         if (!alwaysShowControls) {
-            var c;
             for (c = 0; c < links.length; c++) {
                 document.getElementById(elementName + "-controls-" + c).className = elementName + "-controls " + ((c == currentTarget) ? "" : "hidden");
+            }
+        }
+        if (!showAll) {
+            for (c = 0; c < links.length; c++) {
+                document.getElementById(elementName + "-media-" + c).className = elementName + "-media-" + c + " " + ((c == currentTarget) ? "" : "hidden");
             }
         }
     }
     var updateProgress = function (percent) {
         document.getElementById(elementName + "-filler-" + currentTarget).style.width = percent + "%";
     }
+    var attemptGoFullscreen = function () {
+        if (mediaType == "video") {
+            if (document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen) {
+                document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen();
+            } else if (document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen) {
+                document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen();
+            } else if (document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen) {
+                document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen();
+            }
+        }
+    }
 
+    /*lel, what are conventions?*/
     var main = function () {
         if (links) {
             if (links.length >= 1) {
+                switch (controlsSize) {
+                case 0:
+                    controlsSize = "";
+                    break;
+                case 1:
+                    controlsSize = "fa-lg";
+                    break;
+                    break;
+                case 2:
+                    controlsSize = "fa-2x";
+                    break;
+                case 3:
+                    controlsSize = "fa-3x";
+                    break;
+                case 4:
+                    controlsSize = "fa-4x";
+                    break;
+                case 5:
+                    controlsSize = "fa-5x";
+                    break;
+                default:
+                    console.error("Playlist-js: controlsSize must be a number between 0 and 5 (inclusive)");
+                    break;
+                }
                 var i;
                 currentTarget = 0;
                 content = "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>";
                 for (i = 0; i < links.length; i++) {
                     SongList[i] = i;
 
-                    content += "<div class='" + elementName + "-media " + ((showAll) ? "" : ((i == 0) ? "" : "hidden")) + "'>";
+                    content += "<div id='" + elementName + "-media-" + i + "' class='" + elementName + "-media " + ((showAll) ? "" : ((i == 0) ? "" : "hidden")) + "'>";
+                    if (displayName) {
+                        content += "<div id='" + elementName + "-name-" + i + "' class='" + elementName + "-name'><h3>" + links[i].replace(/\\/g, '\/').split('/')[links[i].replace(/\\/g, '\/').split('/').length - 1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + "</h3></div>";
+                    }
                     content += "<div class='" + elementName + "-media-container'>";
-                    content += "<" + mediaType + " " + ((mediaType == 'video') ? ((debug) ? "controls" : "") + " width='" + videoWidth + "' height='" + videoHeight + "' " : '' + " " + ((debug) ? "controls" : "")) + " " + ((loop) ? 'loop' : '') + " id='" + elementName + "-track-" + i + "' class='" + elementName + "-track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' >";
+                    content += "<" + mediaType + " " + ((mediaType == 'video') ? ((debug) ? "controls" : "") + " width='" + videoWidth + "' height='" + videoHeight + "' " : '' + " " + ((debug) ? "controls" : "")) + " " + ((loop) ? 'loop' : '') + " id='" + elementName + "-track-" + i + "' class='" + elementName + "-track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' preload:'auto'>";
                     content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element";
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
@@ -138,31 +188,37 @@ var Playlist = function (data) {
                     content += "</div>";
                     /**************************** Controls **********************************/
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
-                    content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward'></i>";
-                    content += "<i id='" + elementName + "-rwd-" + i + "' class='fa fa-backward'></i>";
-                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play'></i>";
-                    content += "<i id='" + elementName + "-fwd-" + i + "' class='fa fa-forward'></i>";
-                    content += "<i id='" + elementName + "-skip-" + i + "' class='fa fa-fast-forward'></i>";
-                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : 'highlight') + "'></i>";
-                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : 'highlight') + "'></i>";
+                    content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-rwd-" + i + "' class='fa fa-backward " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play highlight " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-fwd-" + i + "' class='fa fa-forward " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-skip-" + i + "' class='fa fa-fast-forward " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : 'highlight') + " " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : 'highlight') + " " + controlsSize + "'></i>";
+                    content += "<span id='" + elementName + "-loading-" + i + "' ><i class='fa fa-cog fa-spin  fa-fw margin-bottom highlight " + controlsSize + "'></i>Loading media...</span>";
                     content += "<span id='" + elementName + "-time-" + i + "' class='" + elementName + "-time'><h5>0:00</h5></span>"
                     content += "</div>";
                     content += "</div>";
                     content += "</div>";
                 }
                 content += "<style>";
-                content += "i{cursor: pointer; margin-left: 10px; margin-top: 10px}";
-                content += ".highlight{color:" + songBarHighlight + "}";
+                content += ".fa{text-align:left; cursor: pointer; margin-left: 10px; margin-top: 10px}";
                 content += "." + elementName + "-media{padding:5px; margin 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "}";
+                content += "." + elementName + "-media-container{text-align:center}";
                 content += "." + elementName + "-fill-bar{height:" + progressBarHeight + ";background-color:" + progressBarBackground + ";width:100%;border:" + progressBarBorder + ";border-radius:" + progressBarRadius + "}";
                 content += "." + elementName + "-filler{float:left; height:calc(" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "px);background-color:" + progressBarColor + "}";
-                content += "." + elementName + "-controls{text-align:left; width: 100%; color:" + songBarColor + "}";
-                content += "." + elementName + "-time{float: right; margin-right: 10px}"
+                content += "." + elementName + "-controls{ width: 100%; color:" + songBarColor + "}";
+                content += "." + elementName + "-controls .fa{z-index:3;text-align:left; color:" + songBarColor + "}";
+                content += "." + elementName + "-time{float: right; margin-right: 10px}";
+                content += "." + elementName + "-time h5{" + ((fontSize) ? "font-size:" + fontSize + "px" : "") + "}";
+                content += "." + elementName + "-name{width:100%;text-align:center}";
+                content += "." + elementName + "-name>h3{margin-top:10px;padding-top:0; color:" + songBarColor + "}";
+                content += ".highlight{color:" + songBarHighlight + " !important}";
                 content += "</style>";
                 /*************** Manual Styling for now ***************/
-                document.getElementById(elementName).style.width = "75%";
-                document.getElementById(elementName).style.margin = "0 auto";
-                document.getElementById(elementName).style.textAlign = "center";
+                //                document.getElementById(elementName).style.width = "75%";
+                //                document.getElementById(elementName).style.margin = "0 auto";
+                //                document.getElementById(elementName).style.textAlign = "center";
 
                 document.getElementById(elementName).innerHTML = content;
                 if (shuffle) {
@@ -170,11 +226,20 @@ var Playlist = function (data) {
                 }
                 var c;
                 for (c = 0; c < links.length; c++) { //hehe...
-                    document.getElementById(elementName + "-track-" + c).onclick = function () {
-                        var number = this.id.slice(this.id.lastIndexOf('-') + 1);
-                        togglePlayPause(number);
+                    var track = document.getElementById(elementName + "-track-" + c);
+                    track.onclick = function () {
+                        if (goFullscreen) {
+                            attemptGoFullscreen();
+                        } else {
+                            var number = this.id.slice(this.id.lastIndexOf('-') + 1);
+                            togglePlayPause(number);
+                            goFullscreen = true;
+                            setTimeout(function () {
+                                goFullscreen = false
+                            }, 200);
+                        }
                     }
-                    document.getElementById(elementName + "-track-" + c).addEventListener("ended", function () {
+                    track.addEventListener("ended", function () {
                         switchControls();
                         document.getElementById(elementName + "-track-" + currentTarget).currentTime = 0;
                         document.getElementById(elementName + "-track-" + currentTarget).play();
@@ -182,15 +247,20 @@ var Playlist = function (data) {
                             playNext();
                         }
                     })
-                    document.getElementById(elementName + "-track-" + c).addEventListener('timeupdate', function () {
+                    track.addEventListener('timeupdate', function () {
                         var ms = this.currentTime;
 
                         var min = (ms / 60) << 0,
                             sec = (ms) % 60;
-                        document.getElementById(elementName + '-time-' + currentTarget).innerHTML = (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec)));
+                        document.getElementById(elementName + '-time-' + currentTarget).innerHTML = "<h5>" + (((min > 0) ? min : "0") + ":" + ((sec >= 10) ? Math.floor(sec) : "0" + Math.floor(sec))) + "</h5>";
                         var per = (100 * (document.getElementById(elementName + "-track-" + currentTarget)).currentTime / (document.getElementById(elementName + "-track-" + currentTarget)).duration);
                         updateProgress(per);
                     }, false);
+                    track.onloadeddata = function () {
+                        document.getElementById(elementName + "-play-pause-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + " fa fa-play";
+                        document.getElementById(elementName + "-loading-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + "hidden";
+                        console.log(this.id + " loaded data");
+                    }
 
                     document.getElementById(elementName + "-back-" + c).onclick = function () {
                         var number = this.id.slice(this.id.lastIndexOf('-') + 1);
@@ -253,6 +323,10 @@ var Playlist = function (data) {
                             //'s'
                             toggleShuffle();
                             break;
+                        case 70:
+                            //attempt to go fullscreen
+                            attemptGoFullscreen();
+                            break;
                         case 82:
                         case 76:
                             locker = true;
@@ -270,7 +344,6 @@ var Playlist = function (data) {
                 console.error("Playlist-js: Links Array must have at least one item");
             }
         } else {
-            //            console.error("Playlist-js: You must provide an array of links or the folder name");
             console.error("Playlist-js: You must provide an array of links");
         }
     }
@@ -279,8 +352,42 @@ var Playlist = function (data) {
         if (mediaType != 'audio' && mediaType != 'video') {
             console.error('Playlist-js: the mediaType must be either audio or video');
         } else {
-            console.log("Playlist-js: Media type is " + mediaType);
-            main();
+            if (folder) {
+                /*
+                    The commented code below is the implementation for JQuery
+                    For the purposes of this assignment, they have been disabled
+                    that being said, I have tested it with both audio and video elements, and everything works
+                */
+//                var f = folder;
+//                $.ajax({
+//                    url: f,
+//                    success: function (stuff) {
+//                        links = [];
+//                        if (extension == '.*') {
+//                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
+//                                $(stuff).find("a:contains(" + value + ")").each(function () {
+//                                    var ix = $(this).attr("href");
+//                                    links[index] = ix.replace(/%20/g, " ");
+//                                });
+//                            });
+//                        } else {
+//                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
+//                                var ix = $(this).attr("href");
+//                                links[ind3x] = ix.replace(/%20/g, " ");
+//                            });
+//                        }
+//                        main();
+//
+//                    },
+//                    error: function (xlh) {
+//                        console.error("ERROR: " + xlh);
+//                    }
+//                });
+
+                /*disable this call if JQUERY is enabled*/
+                console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)');
+                main();
+            }
         }
 
     } else {
