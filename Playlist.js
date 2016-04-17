@@ -183,9 +183,11 @@ var Playlist = function (data) {
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
                     /******************** Replace this with canvas later ********************/
+                    
                     content += "<div id='" + elementName + "-fill-bar-" + i + "' class='" + elementName + "-fill-bar'>";
-                    content += "<div id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'></div>";
-                    content += "</div>";
+                    content += "<canvas id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'></div>";
+                    content += "Your browser does not support the html5 canvas element</canvas>";
+                    
                     /**************************** Controls **********************************/
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
                     content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward " + controlsSize + "'></i>";
