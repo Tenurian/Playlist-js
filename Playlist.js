@@ -2,6 +2,7 @@ var Playlist = function (data) {
     var SongList = [],
         elementName = (data.hasOwnProperty('elementName')) ? data.elementName : false,
         currentTarget = -1,
+        width = (data.hasOwnProperty('width')) ? data.width : "1000px",
         folder = (data.hasOwnProperty('folder')) ? data.folder : null,
         mediaType = (data.hasOwnProperty('mediaType')) ? data.mediaType : 'audio',
         extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.mp3' : '.mp4',
@@ -15,6 +16,7 @@ var Playlist = function (data) {
         fontSize = (data.hasOwnProperty('fontSize')) ? data.fontSize : false,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
+        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ? data.progressBarWidth : ((width.indexOf('%') > -1) ? .9 * (window.innerWidth * ((width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
         progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
         progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid" + progressBarColor,
         progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
@@ -29,8 +31,9 @@ var Playlist = function (data) {
         videoborder = (data.hasOwnProperty('videoborder')) ? data.videoborder : '1px solid ' + songBarHighlight + '',
         skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000,
         debug = (data.hasOwnProperty('debug')) ? data.debug : false,
-        goFullscreen = false;
-
+        goFullscreen = false,
+        isFullscreen = false,
+        mouseIsDown = false;
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
     };
@@ -45,12 +48,25 @@ var Playlist = function (data) {
             a[j] = x;
         }
     }
-
     var skipForward = function () {
-        document.getElementById(elementName + "-track-" + currentTarget).currentTime += (skipAmount / 1000);
+        var track = document.getElementById(elementName + "-track-" + currentTarget);
+        if (track.currentTime + (skipAmount / 1000) < track.duration) {
+            track.currentTime += (skipAmount / 1000);
+        } else {
+            if (loop) {
+                track.currentTime = 0;
+            } else {
+                playNext();
+            }
+        }
     }
     var skipBackward = function () {
-        document.getElementById(elementName + "-track-" + currentTarget).currentTime -= (skipAmount / 1000);
+        var track = document.getElementById(elementName + "-track-" + currentTarget);
+        if (track.currentTime - (skipAmount / 1000) > 0) {
+            track.currentTime -= (skipAmount / 1000);
+        } else {
+            playPrevious();
+        }
     }
     var playNext = function () {
         if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
@@ -125,17 +141,38 @@ var Playlist = function (data) {
         }
     }
     var updateProgress = function (percent) {
-        document.getElementById(elementName + "-filler-" + currentTarget).style.width = percent + "%";
+        var canvas = document.getElementById(elementName + "-filler-" + currentTarget),
+            ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = progressBarColor;
+        ctx.fillRect(0, 0, Math.ceil(canvas.width * (percent / 100)), canvas.height);
     }
     var attemptGoFullscreen = function () {
         if (mediaType == "video") {
-            if (document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).requestFullscreen();
-            } else if (document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).mozRequestFullScreen();
-            } else if (document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen) {
-                document.getElementById(elementName + "-track-" + currentTarget).webkitRequestFullscreen();
+            var track = document.getElementById(elementName + "-track-" + currentTarget);
+            if (track.requestFullscreen) {
+                if (isFullscreen) {
+                    track.exitFullscreen();
+                } else {
+                    track.requestFullscreen();
+                }
+            } else if (track.mozRequestFullScreen) {
+                if (isFullscreen) {
+                    track.mozCancelFullScreen();
+                } else {
+                    track.mozRequestFullScreen();
+                }
+            } else if (track.webkitRequestFullscreen) {
+                if (isFullscreen) {
+                    track.webkitExitFullscreen();
+                } else {
+                    track.webkitRequestFullscreen();
+                }
             }
+            if (track.paused) {
+                track.play();
+            }
+            isFullscreen = !isFullscreen;
         }
     }
 
@@ -182,10 +219,12 @@ var Playlist = function (data) {
                     content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element";
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
-                    /******************** Replace this with canvas later ********************/
+                    /******************************* PlayBar *******************************/
+
                     content += "<div id='" + elementName + "-fill-bar-" + i + "' class='" + elementName + "-fill-bar'>";
-                    content += "<div id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'></div>";
+                    content += "<canvas width='" + (Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + "' height='" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'>Your browser does not support the html5 canvas element</canvas>";
                     content += "</div>";
+
                     /**************************** Controls **********************************/
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
                     content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward " + controlsSize + "'></i>";
@@ -202,11 +241,12 @@ var Playlist = function (data) {
                     content += "</div>";
                 }
                 content += "<style>";
+                content += "#" + elementName + "{width:" + width + "; min-width: " + progressBarWidth + "; margin:0 auto; padding: 25px}";
                 content += ".fa{text-align:left; cursor: pointer; margin-left: 10px; margin-top: 10px}";
-                content += "." + elementName + "-media{padding:5px; margin 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "}";
+                content += "." + elementName + "-media{padding:5px; margin: 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "; min-width: " + (Number(Number(progressBarWidth.slice(0, -2)) + (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + 20) + "px}";
                 content += "." + elementName + "-media-container{text-align:center}";
-                content += "." + elementName + "-fill-bar{height:" + progressBarHeight + ";background-color:" + progressBarBackground + ";width:100%;border:" + progressBarBorder + ";border-radius:" + progressBarRadius + "}";
-                content += "." + elementName + "-filler{float:left; height:calc(" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "px);background-color:" + progressBarColor + "}";
+                content += "." + elementName + "-fill-bar{margin:0 auto;height:" + progressBarHeight + ";background-color:" + progressBarBackground + ";width:" + progressBarWidth + ";border:" + progressBarBorder + ";border-radius:" + progressBarRadius + "}";
+                content += "." + elementName + "-filler{float:left; height:calc(" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "px);background-color: transparent; width:100%}";
                 content += "." + elementName + "-controls{ width: 100%; color:" + songBarColor + "}";
                 content += "." + elementName + "-controls .fa{z-index:3;text-align:left; color:" + songBarColor + "}";
                 content += "." + elementName + "-time{float: right; margin-right: 10px}";
@@ -259,8 +299,33 @@ var Playlist = function (data) {
                     track.onloadeddata = function () {
                         document.getElementById(elementName + "-play-pause-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + " fa fa-play";
                         document.getElementById(elementName + "-loading-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + "hidden";
-                        console.log(this.id + " loaded data");
                     }
+
+                    document.getElementById(elementName + "-filler-" + c).addEventListener("mousedown", function (ev) {
+                        mouseIsDown = true;
+                        if (this.id.slice(this.id.lastIndexOf('-') + 1) != currentTarget) {
+                            //                            togglePlayPause();
+                            //                            currentTarget = ;
+                            togglePlayPause(this.id.slice(this.id.lastIndexOf('-') + 1));
+
+                        }
+                        if (document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1)).paused) {
+                            document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1)).play;
+                        }
+                        var canvas = document.getElementById(elementName + "-filler-" + this.id.slice(this.id.lastIndexOf('-') + 1));
+                        var tk = document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1));
+                        tk.currentTime = Math.ceil(tk.duration * ((ev.clientX - canvas.offsetLeft) / canvas.width));
+                    }, false);
+                    window.addEventListener("mouseup", function (ev) {
+                        mouseIsDown = false;
+                    }, false);
+                    document.getElementById(elementName + "-filler-" + c).addEventListener("mousemove", function (ev) {
+                        if (mouseIsDown) {
+                            var canvas = document.getElementById(elementName + "-filler-" + this.id.slice(this.id.lastIndexOf('-') + 1));
+                            var tk = document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1));
+                            tk.currentTime = Math.ceil(tk.duration * ((ev.clientX - canvas.offsetLeft) / canvas.width));
+                        }
+                    }, false);
 
                     document.getElementById(elementName + "-back-" + c).onclick = function () {
                         var number = this.id.slice(this.id.lastIndexOf('-') + 1);
@@ -298,7 +363,6 @@ var Playlist = function (data) {
                 document.getElementById(elementName).onkeydown = function (e) {
                     var key = e.keyCode ? e.keyCode : e.which;
                     var locker;
-                    //                    console.log("Key " + key + " was pressed on " + elementName);
 
                     if (!locker) {
                         switch (key) {
@@ -358,34 +422,36 @@ var Playlist = function (data) {
                     For the purposes of this assignment, they have been disabled
                     that being said, I have tested it with both audio and video elements, and everything works
                 */
-//                var f = folder;
-//                $.ajax({
-//                    url: f,
-//                    success: function (stuff) {
-//                        links = [];
-//                        if (extension == '.*') {
-//                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
-//                                $(stuff).find("a:contains(" + value + ")").each(function () {
-//                                    var ix = $(this).attr("href");
-//                                    links[index] = ix.replace(/%20/g, " ");
-//                                });
-//                            });
-//                        } else {
-//                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
-//                                var ix = $(this).attr("href");
-//                                links[ind3x] = ix.replace(/%20/g, " ");
-//                            });
-//                        }
-//                        main();
-//
-//                    },
-//                    error: function (xlh) {
-//                        console.error("ERROR: " + xlh);
-//                    }
-//                });
+                //                var f = folder;
+                //                $.ajax({
+                //                    url: f,
+                //                    success: function (stuff) {
+                //                        links = [];
+                //                        if (extension == '.*') {
+                //                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
+                //                                $(stuff).find("a:contains(" + value + ")").each(function () {
+                //                                    var ix = $(this).attr("href");
+                //                                    links[index] = ix.replace(/%20/g, " ");
+                //                                });
+                //                            });
+                //                        } else {
+                //                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
+                //                                var ix = $(this).attr("href");
+                //                                links[ind3x] = ix.replace(/%20/g, " ");
+                //                            });
+                //                        }
+                //                        main();
+                //
+                //                    },
+                //                    error: function (xlh) {
+                //                        console.error("ERROR: " + xlh);
+                //                    }
+                //                });
 
                 /*disable this call if JQUERY is enabled*/
                 console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)');
+                main();
+            } else {
                 main();
             }
         }
