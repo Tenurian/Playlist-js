@@ -16,9 +16,7 @@ var Playlist = function (data) {
         fontSize = (data.hasOwnProperty('fontSize')) ? data.fontSize : false,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
-        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ?
-            data.progressBarWidth :
-            ((width.indexOf('%') > -1) ? .9 * (((document.getElementById(elementName).parentElement.width) ? document.getElementById(elementName).parentElement.width : window.innerWidth / 2) * (Number(width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
+        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ? data.progressBarWidth : ((width.indexOf('%') > -1) ? .9 * (((document.getElementById(elementName).parentElement.width) ? document.getElementById(elementName).parentElement.width : window.innerWidth / 2) * (Number(width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
         progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
         progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid" + progressBarColor,
         progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
