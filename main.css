@@ -20,10 +20,6 @@
     background-repeat: no-repeat;
 }
 
-canvas{
-    border: 1px solid red;
-}
-
 .navbar-default {
   background-color: #000000 !important;
 /*  border-color: #3f79e0;*/
