@@ -16,7 +16,7 @@ var Playlist = function (data) {
         fontSize = (data.hasOwnProperty('fontSize')) ? data.fontSize : false,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
-        progressBarWidth = (data.hasOwnProperty('progressBarWidth')) ? data.progressBarWidth : ((width.indexOf('%')) ? .9 * (window.innerWidth * ((width.slice(0, (width.indexOf('%')))) / 100)) : (width.slice(0, -2) * .9)) + "px",
+        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ? data.progressBarWidth : ((width.indexOf('%') > -1) ? .9 * (window.innerWidth * ((width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
         progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
         progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid" + progressBarColor,
         progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
@@ -36,7 +36,8 @@ var Playlist = function (data) {
     //
     //    var temp = width;
     //    width = '90%';
-    //    console.log(width.slice(0, width.indexOf('%')));
+    console.log(Math.ceil(Number(width.slice(0, -2)) * .9));
+    console.log(progressBarWidth);
     //    width = temp;
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
@@ -212,8 +213,14 @@ var Playlist = function (data) {
                     /******************** Replace this with canvas later ********************/
 
                     content += "<div id='" + elementName + "-fill-bar-" + i + "' class='" + elementName + "-fill-bar'>";
-                    content += "<canvas width='" + (progressBarWidth.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' height='" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'>Your browser does not support the html5 canvas element</canvas>";
+                    content += "<canvas width='" + (Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + "' height='" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'>Your browser does not support the html5 canvas element</canvas>";
                     content += "</div>";
+
+                    console.log(progressBarWidth);
+                    console.log(typeof Number(progressBarBorder.split(" ")[0].slice(0, -2)));
+                    console.log(Number(progressBarBorder.split(" ")[0].slice(0, -2)));
+                    console.log((progressBarBorder.split(" ")[0].slice(0, -2)) * 2);
+                    console.log((Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)));
 
                     /**************************** Controls **********************************/
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
@@ -231,7 +238,7 @@ var Playlist = function (data) {
                     content += "</div>";
                 }
                 content += "<style>";
-                content += "#" + elementName + "{width:" + width + "; min-width: " + progressBarWidth + "; margin:0 auto}";
+                content += "#" + elementName + "{width:" + width + "; min-width: " + progressBarWidth + "; margin:0 auto; padding: 25px}";
                 content += ".fa{text-align:left; cursor: pointer; margin-left: 10px; margin-top: 10px}";
                 content += "." + elementName + "-media{padding:5px; margin 10px auto; color: " + songBarColor + "; background-color:" + songBarBackground + "; border:" + songBarBorder + "; border-radius:" + songBarRadius + "}";
                 content += "." + elementName + "-media-container{text-align:center}";
