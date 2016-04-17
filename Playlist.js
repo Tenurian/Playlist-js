@@ -334,10 +334,6 @@ var Playlist = function (data) {
 
 
                         var tk = document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1));
-                        console.log("X: "+getMousePos(canvas, ev).x);
-                        console.log("W: " + canvas.width);
-                        console.log("s%: "+Math.ceil((getMousePos(canvas, ev).x / canvas.width)*100));
-                        console.log("s%: "+Math.ceil(tk.duration * (getMousePos(canvas, ev).x / canvas.width)));
                         tk.currentTime = Math.ceil(tk.duration * (getMousePos(canvas, ev).x / canvas.width));
                     }, false);
 
