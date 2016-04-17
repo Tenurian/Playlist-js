@@ -2,7 +2,7 @@ var Playlist = function (data) {
     var SongList = [],
         elementName = (data.hasOwnProperty('elementName')) ? data.elementName : false,
         currentTarget = -1,
-        width = (data.hasOwnProperty('width')) ? data.width : "1000px",
+        width = (data.hasOwnProperty('width')) ? data.width : "100%",
         folder = (data.hasOwnProperty('folder')) ? data.folder : null,
         mediaType = (data.hasOwnProperty('mediaType')) ? data.mediaType : 'audio',
         extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.mp3' : '.mp4',
@@ -16,7 +16,9 @@ var Playlist = function (data) {
         fontSize = (data.hasOwnProperty('fontSize')) ? data.fontSize : false,
         displayName = (data.hasOwnProperty('displayName')) ? data.displayName : true,
         progressBarHeight = (data.hasOwnProperty('progressBarHeight')) ? data.progressBarHeight : "30px",
-        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ? data.progressBarWidth : ((width.indexOf('%') > -1) ? .9 * (window.innerWidth * ((width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
+        progressBarWidth = ((data.hasOwnProperty('progressBarWidth')) ? 
+                            data.progressBarWidth : 
+                            ((width.indexOf('%') > -1) ? .9 * (((document.getElementById(elementName).parentElement.width)?document.getElementById(elementName).parentElement.width:window.innerWidth/2) * (Number(width.slice(0, (width.indexOf('%')))) / 100)) : (Math.ceil(Number(width.slice(0, -2)) * .9))) + "px"),
         progressBarColor = (data.hasOwnProperty('progressBarColor')) ? data.progressBarColor : "#3f79e0",
         progressBarBorder = (data.hasOwnProperty('progressBarBorder')) ? data.progressBarBorder : "3px solid" + progressBarColor,
         progressBarBackground = (data.hasOwnProperty('progressBarBackground')) ? data.progressBarBackground : "#4a4a4a",
@@ -37,6 +39,14 @@ var Playlist = function (data) {
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
     };
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
 
     var attemptGoFullscreen = function () {
         if (mediaType == "video") {
@@ -66,6 +76,7 @@ var Playlist = function (data) {
             isFullscreen = !isFullscreen;
         }
     }
+
     function shuffleArray(a) {
         var j, x, i;
         for (i = a.length; i; i -= 1) {
@@ -121,7 +132,7 @@ var Playlist = function (data) {
         loop = !loop;
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-loop-" + c).className = (loop) ? 'fa fa-retweet' : 'fa fa-retweet '+elementName+'-highlight';
+            document.getElementById(elementName + "-loop-" + c).className = (loop) ? 'fa fa-retweet' : 'fa fa-retweet ' + elementName + '-highlight';
         }
     }
     var toggleShuffle = function () {
@@ -132,7 +143,7 @@ var Playlist = function (data) {
         }
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-shuffle-" + c).className = (shuffle) ? 'fa fa-random' : 'fa fa-random '+elementName+'-highlight';
+            document.getElementById(elementName + "-shuffle-" + c).className = (shuffle) ? 'fa fa-random' : 'fa fa-random ' + elementName + '-highlight';
             if (!shuffle) {
                 SongList[c] = c;
             }
@@ -190,20 +201,20 @@ var Playlist = function (data) {
                     controlsSize = "";
                     break;
                 case 1:
-                    controlsSize = "fa-lg";
+                    controlsSize = " fa-lg ";
                     break;
                     break;
                 case 2:
-                    controlsSize = "fa-2x";
+                    controlsSize = " fa-2x ";
                     break;
                 case 3:
-                    controlsSize = "fa-3x";
+                    controlsSize = " fa-3x ";
                     break;
                 case 4:
-                    controlsSize = "fa-4x";
+                    controlsSize = " fa-4x ";
                     break;
                 case 5:
-                    controlsSize = "fa-5x";
+                    controlsSize = " fa-5x ";
                     break;
                 default:
                     console.error("Playlist-js: controlsSize must be a number between 0 and 5 (inclusive)");
@@ -225,7 +236,6 @@ var Playlist = function (data) {
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
                     /******************************* PlayBar *******************************/
-
                     content += "<div id='" + elementName + "-fill-bar-" + i + "' class='" + elementName + "-fill-bar'>";
                     content += "<canvas width='" + (Number(progressBarWidth.slice(0, -2)) - (Number(progressBarBorder.split(" ")[0].slice(0, -2)) * 2)) + "' height='" + (progressBarHeight.slice(0, -2) - (progressBarBorder.split(" ")[0].split('').slice(0, -2).join() * 2)) + "' id='" + elementName + "-filler-" + i + "' class='" + elementName + "-filler'>Your browser does not support the html5 canvas element</canvas>";
                     content += "</div>";
@@ -234,12 +244,12 @@ var Playlist = function (data) {
                     content += "<div id='" + elementName + "-controls-" + i + "' class='" + elementName + "-controls " + ((alwaysShowControls) ? '' : ((i == 0) ? "" : "hidden")) + "'>";
                     content += "<i id='" + elementName + "-back-" + i + "' class='fa fa-fast-backward " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-rwd-" + i + "' class='fa fa-backward " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play "+elementName+"-highlight " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-play-pause-" + i + "' class='fa fa-play " + elementName + "-highlight " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-fwd-" + i + "' class='fa fa-forward " + controlsSize + "'></i>";
                     content += "<i id='" + elementName + "-skip-" + i + "' class='fa fa-fast-forward " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : elementName+'-highlight') + " " + controlsSize + "'></i>";
-                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : elementName+'-highlight') + " " + controlsSize + "'></i>";
-                    content += "<span id='" + elementName + "-loading-" + i + "' ><i class='fa fa-cog fa-spin  fa-fw margin-bottom "+elementName+-"highlight " + controlsSize + "'></i>Loading media...</span>";
+                    content += "<i id='" + elementName + "-loop-" + i + "' class='fa fa-retweet " + ((loop) ? '' : elementName + '-highlight') + " " + controlsSize + "'></i>";
+                    content += "<i id='" + elementName + "-shuffle-" + i + "' class='fa fa-random " + ((shuffle) ? '' : elementName + '-highlight') + " " + controlsSize + "'></i>";
+                    content += "<span id='" + elementName + "-loading-" + i + "' ><i class='fa fa-cog fa-spin margin-bottom " + elementName + "-highlight " + elementName + "-loading " + controlsSize + "' aria-hidden='true'></i>Loading media...</span>";
                     content += "<span id='" + elementName + "-time-" + i + "' class='" + elementName + "-time'><h5>0:00</h5></span>"
                     content += "</div>";
                     content += "</div>";
@@ -259,6 +269,8 @@ var Playlist = function (data) {
                 content += "." + elementName + "-name{width:100%;text-align:center}";
                 content += "." + elementName + "-name>h3{margin-top:10px;padding-top:0; color:" + songBarColor + "}";
                 content += "." + elementName + "-highlight{color:" + songBarHighlight + " !important}";
+                content += "." + elementName + "-loading{cursor:default !important; }"
+                content += ".fa-spin { -webkit-filter: blur(0); }"
                 content += "</style>";
                 /*************** Manual Styling for now ***************/
                 //                document.getElementById(elementName).style.width = "75%";
@@ -301,34 +313,43 @@ var Playlist = function (data) {
                         var per = (100 * (document.getElementById(elementName + "-track-" + currentTarget)).currentTime / (document.getElementById(elementName + "-track-" + currentTarget)).duration);
                         updateProgress(per);
                     }, false);
+
                     track.onloadeddata = function () {
                         document.getElementById(elementName + "-play-pause-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + " fa fa-play";
-                        document.getElementById(elementName + "-loading-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = controlsSize + "hidden";
+                        //                        document.getElementById(elementName + "-loading-" + this.id.slice(this.id.lastIndexOf('-') + 1, this.id.length)).className = "hidden";
                     }
 
                     document.getElementById(elementName + "-filler-" + c).addEventListener("mousedown", function (ev) {
                         mouseIsDown = true;
                         if (this.id.slice(this.id.lastIndexOf('-') + 1) != currentTarget) {
-                            //                            togglePlayPause();
-                            //                            currentTarget = ;
                             togglePlayPause(this.id.slice(this.id.lastIndexOf('-') + 1));
 
                         }
                         if (document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1)).paused) {
                             document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1)).play;
                         }
+
                         var canvas = document.getElementById(elementName + "-filler-" + this.id.slice(this.id.lastIndexOf('-') + 1));
+
+
+
                         var tk = document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1));
-                        tk.currentTime = Math.ceil(tk.duration * ((ev.clientX - canvas.offsetLeft) / canvas.width));
+                        console.log("X: "+getMousePos(canvas, ev).x);
+                        console.log("W: " + canvas.width);
+                        console.log("s%: "+Math.ceil((getMousePos(canvas, ev).x / canvas.width)*100));
+                        console.log("s%: "+Math.ceil(tk.duration * (getMousePos(canvas, ev).x / canvas.width)));
+                        tk.currentTime = Math.ceil(tk.duration * (getMousePos(canvas, ev).x / canvas.width));
                     }, false);
+
                     window.addEventListener("mouseup", function (ev) {
                         mouseIsDown = false;
                     }, false);
+
                     document.getElementById(elementName + "-filler-" + c).addEventListener("mousemove", function (ev) {
                         if (mouseIsDown) {
                             var canvas = document.getElementById(elementName + "-filler-" + this.id.slice(this.id.lastIndexOf('-') + 1));
                             var tk = document.getElementById(elementName + "-track-" + this.id.slice(this.id.lastIndexOf('-') + 1));
-                            tk.currentTime = Math.ceil(tk.duration * ((ev.clientX - canvas.offsetLeft) / canvas.width));
+                            tk.currentTime = Math.ceil(tk.duration * (getMousePos(canvas, ev).x / canvas.width));
                         }
                     }, false);
 
