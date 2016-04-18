@@ -1,15 +1,15 @@
 var Playlist = function (data) {
     var SongList = [],
-        elementName = (data.hasOwnProperty('elementName')) ? data.elementName : false,
         currentTarget = -1,
-        width = (data.hasOwnProperty('width')) ? data.width : "100%",
+        elementName = (data.hasOwnProperty('elementName')) ? data.elementName : false,
+        links = (data.hasOwnProperty('links')) ? data.links : false,
         folder = (data.hasOwnProperty('folder')) ? data.folder : null,
         mediaType = (data.hasOwnProperty('mediaType')) ? data.mediaType : 'audio',
-        extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.mp3' : '.mp4',
+        width = (data.hasOwnProperty('width')) ? data.width : "100%",
+        extension = (data.hasOwnProperty('filetype')) ? data.filetype : (mediaType == 'audio') ? '.*' : '.mp4',
         focusPlaying = (data.hasOwnProperty('focusPlaying')) ? data.focusPlaying : false,
         shuffle = (data.hasOwnProperty('shuffle')) ? data.shuffle : false,
         loop = (data.hasOwnProperty('loop')) ? data.loop : false,
-        links = (data.hasOwnProperty('links')) ? data.links : false,
         showAll = (data.hasOwnProperty('showAll')) ? data.showAll : true,
         alwaysShowControls = (data.hasOwnProperty('alwaysShowControls')) ? data.alwaysShowControls : true,
         controlsSize = (data.hasOwnProperty('controlsSize')) ? data.controlsSize : 0,
@@ -28,12 +28,13 @@ var Playlist = function (data) {
         songBarRadius = (data.hasOwnProperty('songBarRadius')) ? data.songBarRadius : "5px",
         videoWidth = (data.hasOwnProperty('videoWidth')) ? data.videoWidth : 'auto',
         videoHeight = (data.hasOwnProperty('videoHeight')) ? data.videoHeight : 'auto',
-        videoborder = (data.hasOwnProperty('videoborder')) ? data.videoborder : '1px solid ' + songBarHighlight + '',
+//        videoBorder = (data.hasOwnProperty('videoBorder')) ? data.videoBorder : '1px solid ' + songBarHighlight + '',
         skipAmount = (data.hasOwnProperty("skipAmount")) ? data.skipAmount : 5000,
         debug = (data.hasOwnProperty('debug')) ? data.debug : false,
         goFullscreen = false,
         isFullscreen = false,
-        mouseIsDown = false;
+        mouseIsDown = false,
+        usingJQuery = false;
     Element.prototype.documentOffsetTop = function () {
         return this.offsetTop + (this.offsetParent ? this.offsetParent.documentOffsetTop() : 0);
     };
@@ -116,21 +117,25 @@ var Playlist = function (data) {
         switchControls();
     }
     var playPrevious = function () {
-        if (isFullscreen) {
-            attemptGoFullscreen();
-        }
-        if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
+        if (document.getElementById(elementName + "-track-" + currentTarget).currentTime >= 1) {
+            document.getElementById(elementName + "-track-" + currentTarget).currentTime = 0;
+        } else {
+            if (isFullscreen) {
+                attemptGoFullscreen();
+            }
+            if (!document.getElementById(elementName + "-track-" + currentTarget).paused) {
+                togglePlayPause(currentTarget);
+            }
+            currentTarget = SongList[((SongList.length + SongList.indexOf(currentTarget) - 1) % SongList.length)];
             togglePlayPause(currentTarget);
+            switchControls();
         }
-        currentTarget = SongList[((SongList.length + SongList.indexOf(currentTarget) - 1) % SongList.length)];
-        togglePlayPause(currentTarget);
-        switchControls();
     }
     var toggleLoop = function () {
         loop = !loop;
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-loop-" + c).className = (loop) ? 'fa fa-retweet' : 'fa fa-retweet ' + elementName + '-highlight';
+            document.getElementById(elementName + "-loop-" + c).className = controlsSize + ((loop) ? 'fa fa-retweet' : 'fa fa-retweet ' + elementName + '-highlight');
         }
     }
     var toggleShuffle = function () {
@@ -141,7 +146,7 @@ var Playlist = function (data) {
         }
         var c;
         for (c = 0; c < links.length; c++) {
-            document.getElementById(elementName + "-shuffle-" + c).className = (shuffle) ? 'fa fa-random' : 'fa fa-random ' + elementName + '-highlight';
+            document.getElementById(elementName + "-shuffle-" + c).className = controlsSize + ((shuffle) ? 'fa fa-random' : 'fa fa-random ' + elementName + '-highlight');
             if (!shuffle) {
                 SongList[c] = c;
             }
@@ -437,40 +442,44 @@ var Playlist = function (data) {
             console.error('Playlist-js: the mediaType must be either audio or video');
         } else {
             if (folder) {
-                /*
-                    The commented code below is the implementation for JQuery
-                    For the purposes of this assignment, they have been disabled
-                    that being said, I have tested it with both audio and video elements, and everything works
-                */
-                //                var f = folder;
-                //                $.ajax({
-                //                    url: f,
-                //                    success: function (stuff) {
-                //                        links = [];
-                //                        if (extension == '.*') {
-                //                            $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
-                //                                $(stuff).find("a:contains(" + value + ")").each(function () {
-                //                                    var ix = $(this).attr("href");
-                //                                    links[index] = ix.replace(/%20/g, " ");
-                //                                });
-                //                            });
-                //                        } else {
-                //                            $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
-                //                                var ix = $(this).attr("href");
-                //                                links[ind3x] = ix.replace(/%20/g, " ");
-                //                            });
-                //                        }
-                //                        main();
-                //
-                //                    },
-                //                    error: function (xlh) {
-                //                        console.error("ERROR: " + xlh);
-                //                    }
-                //                });
+                if (window.jQuery) {
+                    if (usingJQuery) {
+                        /*
+                            The codebelow is the implementation for JQuery
+                            For the purposes of this assignment, they have been disabled
+                            that being said, I have tested it with both audio and video elements, and everything works
+                        */
+                        var f = folder;
+                        $.ajax({
+                            url: f,
+                            success: function (stuff) {
+                                links = [];
+                                if (extension == '.*') {
+                                    $.each(['.3ga', '.aac', '.aiff', '.amr', '.ape', '.asf', '.asx', '.cda', '.dvf', '.flac', '.gp4', '.gp5', '.gpx', '.logic', '.m4a', '.m4b', '.m4p', '.midi', '.mp3', '.ogg', '.pcm', '.rec', '.snd', '.sng', '.uax', '.wav', '.wma', '.wpl'], function (index, value) {
+                                        $(stuff).find("a:contains(" + value + ")").each(function () {
+                                            var ix = $(this).attr("href");
+                                            links[index] = ix.replace(/%20/g, " ");
+                                        });
+                                    });
+                                } else {
+                                    $(stuff).find("a:contains(" + extension + ")").each(function (ind3x, valu3) {
+                                        var ix = $(this).attr("href");
+                                        links[ind3x] = ix.replace(/%20/g, " ");
+                                    });
+                                }
+                                main();
 
-                /*disable this call if JQUERY is enabled*/
-                console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)');
-                main();
+                            },
+                            error: function (xlh) {
+                                console.error("ERROR: " + xlh);
+                            }
+                        });
+                    } else {
+                        /*disable this call if JQUERY is enabled*/
+                        console.error('This functionality requires JQuery to be used, and for the purposes of this assignment have been shut off. (<sarcasm>Thanks Mr. Beatty</sarcasm>)');
+                    }
+                    main();
+                }
             } else {
                 main();
             }
