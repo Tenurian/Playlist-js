@@ -234,7 +234,7 @@ var Playlist = function (data) {
                         content += "<div id='" + elementName + "-name-" + i + "' class='" + elementName + "-name'><h3>" + links[i].replace(/\\/g, '\/').split('/')[links[i].replace(/\\/g, '\/').split('/').length - 1].replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']').slice(0, links[i].lastIndexOf('.') - links[i].length) + "</h3></div>";
                     }
                     content += "<div class='" + elementName + "-media-container'>";
-                    content += "<" + mediaType + " " + ((mediaType == 'video') ? ((debug) ? "controls" : "") + " width='" + videoWidth + "' height='" + videoHeight + "' " : '' + " " + ((debug) ? "controls" : "")) + " " + ((loop) ? 'loop' : '') + " id='" + elementName + "-track-" + i + "' class='" + elementName + "-track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' preload:'auto'>";
+                    content += "<" + mediaType + " " + ((mediaType == 'video') ? ((debug) ? "controls" : "") + " width='" + videoWidth + "' height='" + videoHeight + "' " : '' + " " + ((debug) ? "controls" : "")) + " " + ((loop) ? 'loop' : '') + " id='" + elementName + "-track-" + i + "' class='" + elementName + "-track " + ((debug) ? '' : ((mediaType == 'video') ? "center" : "hidden")) + "' preload:'metadata'>";
                     content += "<source src='" + links[i] + "' > Your browser does not support the HTML5 " + mediaType + " element";
                     content += "<br></" + mediaType + ">";
                     content += "</div>";
